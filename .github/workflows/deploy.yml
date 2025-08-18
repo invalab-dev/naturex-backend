@@ -86,4 +86,5 @@ jobs:
           script: |
             cd ~/naturex-backend
             npm install --omit=dev
+            sudo systemctl daemon-reload
             sudo systemctl restart naturex-backend
