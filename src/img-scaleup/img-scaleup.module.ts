@@ -1,9 +1,13 @@
 import { Module } from '@nestjs/common';
-import { ImageScaleupController } from './img-scaleup.controller';
+import { ImgScaleupController } from './img-scaleup.controller';
+import { HttpModule } from '@nestjs/axios';
+import { ImgScaleupService } from './img-scaleup.service';
 
 
 @Module({
-  controllers: [ImageScaleupController],
+  imports: [HttpModule],
+  controllers: [ImgScaleupController],
+  providers: [ImgScaleupService]
 })
 export class ImgScaleupModule {
 
