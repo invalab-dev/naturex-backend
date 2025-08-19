@@ -27,7 +27,8 @@ jobs:
           npm run test --if-present
           
 
-        # release 폴더 만들고 하위에 dist/, .env, .package.json, tsconfig.json, tsconfig.build.json을 이동시킵니다.
+        # release 폴더 만들고 하위에 dist/, .env, .package.json,
+        # tsconfig.json, tsconfig.build.json, naturex-backend.service를 이동시킵니다.
       - name: Move necessary files and folder
         run: |
           mkdir release
@@ -36,6 +37,7 @@ jobs:
           cp -f package.json release
           cp -f tsconfig.json release
           cp -f tsconfig.build.json release
+          cp -f naturex-backend.service release
 
         # release 내부의 폴더 및 파일들을 압축합니다.
       - name: Zip artifact for deployment
@@ -73,7 +75,7 @@ jobs:
           source: "release.zip"
           target: "~"
 
-      - name: Cleanup and unzip
+      - name: Cleanup and unzip on naturex-backend & move .service
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -84,6 +86,7 @@ jobs:
             mkdir naturex-backend
             unzip release.zip -d naturex-backend
             rm release.zip
+            mv -f naturex-backend/naturex-backend.service /etc/systemd/system
 
       - name: Restart systemd service
         uses: appleboy/ssh-action@v1.0.3
