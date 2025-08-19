@@ -80,10 +80,8 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            rm -rf naturex-backend
             mkdir naturex-backend
-            cd naturex-backend
-            rm -rf .
-            cd ..
             unzip release.zip -d naturex-backend
             rm release.zip
 
