@@ -25,14 +25,22 @@ jobs:
           npm install
           npm run build --if-present
           npm run test --if-present
+          
 
-      - name: Move .env into dist
-        run: cp -f .env dist
+        # release 폴더 만들고 하위에 dist/, .env, .package.json, tsconfig.json, tsconfig.build.json을 이동시킵니다.
+      - name: Move necessary files and folder
+        run: |
+          mkdir release
+          cp -rf dist release
+          cp -f .env release
+          cp -f package.json release
+          cp -f tsconfig.json release
+          cp -f tsconfig.build.json release
 
-        # release.zip 안에는 dist(포함x) 내부 파일과 폴더만 가집니다.
+        # release 내부의 폴더 및 파일들을 압축합니다.
       - name: Zip artifact for deployment
         run: |
-          cd dist
+          cd release
           zip -r ../release.zip .
 
       - name: Upload artifact for deployment job
@@ -62,7 +70,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "./release.zip"
+          source: "release.zip"
           target: "~"
 
       - name: Cleanup and unzip
@@ -72,9 +80,11 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            mkdir -p naturex-backend
-            rm -rf ./naturex-backend
-            unzip release.zip -d ./naturex-backend
+            mkdir naturex-backend
+            cd naturex-backend
+            rm -rf .
+            cd ..
+            unzip release.zip -d naturex-backend
             rm release.zip
 
       - name: Restart systemd service
@@ -84,7 +94,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd ~/naturex-backend
+            cd naturex-backend
             npm install --omit=dev
             sudo systemctl daemon-reload
             sudo systemctl restart naturex-backend
