@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
-import FormData from 'form-data';
 
 
 @Injectable()
@@ -12,7 +11,11 @@ export class ImgScaleupService {
 
   async uploadImage(image: Express.Multer.File) {
     const form = new FormData();
-    form.append("image", image.buffer);
+    form.append(
+      "image",
+      new Blob([new Uint8Array(image.buffer)], { type: image.mimetype }),
+      image.originalname
+    );
 
     const { data } = await firstValueFrom(
       this.httpService.post(`${this.baseUrl}/upload`, form),
