@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Param,
   Post,
   Query,
@@ -20,6 +21,7 @@ export class ImgScaleupController {
   constructor(private readonly imgScaleupService: ImgScaleupService) {}
 
   @Post("upload")
+  @HttpCode(200)
   @UseInterceptors(FileInterceptor("image"))
   async uploadImage(@UploadedFile() image: Express.Multer.File) {
     return this.imgScaleupService.upload(image);
