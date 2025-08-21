@@ -44,12 +44,13 @@ export class ImgScaleupService {
   private async uploadCloud(image: Uint8Array, filename: string, isInput: boolean) {
     const bucketName = "img-scaleup";
     const key = `${isInput ? "inputs" : "outputs"}/${filename}`;
+    const path = `${bucketName}:${key}`;
 
     await this.s3Service.putObject(bucketName, key, new Uint8Array(image.buffer));
 
     const sql = this.postgresService.sql;
     await sql`UPDATE img_scaleup_job
-              SET ${isInput ? "input_path" : "output_path"}
+              SET ${isInput ? "input_path" : "output_path"} = ${path}
               WHERE file_name = ${filename}`;
   }
 
