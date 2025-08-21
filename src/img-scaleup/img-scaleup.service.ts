@@ -63,6 +63,9 @@ export class ImgScaleupService {
       this.httpService.get(`${this.gpu_server_host}/download/${filename}`, {
         "responseType": 'arraybuffer'
       }));
+
+    console.log(`response: ${res}`);
+
     if(res.status === HttpStatus.OK) {
       const image = new Uint8Array(res.data);
       await this.uploadCloud(image, filename, false);
@@ -106,7 +109,6 @@ export class ImgScaleupService {
             this.uploadOutput(filename);
           }
         } catch(e) {
-          console.log(`uploadOutput: ${e}`);
           await sql`UPDATE img_scaleup_job
                   SET output_path = NULL
                   WHERE file_name = ${filename}`;
