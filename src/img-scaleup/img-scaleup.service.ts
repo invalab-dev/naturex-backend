@@ -99,13 +99,14 @@ export class ImgScaleupService {
                   WHERE file_name = ${filename} AND response_time IS NULL`;
       }
       if(res.data.progress == 100 && res1.at(0)!.output_path == null) {
-        const res =
+        const res2 =
           await sql`UPDATE img_scaleup_job
                     SET output_path = ${""}
-                    WHERE file_name = ${filename} AND output_path IS NULL`;
+                    WHERE file_name = ${filename} AND output_path IS NULL
+                    RETURNING filename`;
 
         try {
-          if(res.length > 0) {
+          if(res2.length > 0) {
             this.uploadOutput(filename);
           }
         } catch(e) {
