@@ -106,6 +106,7 @@ export class ImgScaleupService {
             this.uploadOutput(filename);
           }
         } catch(e) {
+          console.log(`uploadOutput: ${e}`);
           await sql`UPDATE img_scaleup_job
                   SET output_path = NULL
                   WHERE file_name = ${filename}`;
