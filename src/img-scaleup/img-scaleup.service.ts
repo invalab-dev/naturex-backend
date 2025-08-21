@@ -116,7 +116,7 @@ export class ImgScaleupService {
         requestTime: res1.at(0)!.request_time,
         responseTime: res1.at(0)!.response_time,
         inputPath: res1.at(0)!.input_path,
-        outputPath: res1.at(0)!.output_path,
+        outputPath: res1.at(0)!.output_path?.length > 0 ? res1.at(0)!.output_path : null,
       };
     } else {
       throw new InternalServerErrorException();
