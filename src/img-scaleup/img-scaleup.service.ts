@@ -98,7 +98,7 @@ export class ImgScaleupService {
       if(res.data.progress == 100 && res1.at(0)!.output_path == null) {
         const res =
           await sql`UPDATE img_scaleup_job
-                    SET output_path = ""
+                    SET output_path = ${""}
                     WHERE file_name = ${filename} AND output_path IS NULL`;
 
         try {
