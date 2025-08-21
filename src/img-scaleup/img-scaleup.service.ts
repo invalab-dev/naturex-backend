@@ -92,7 +92,7 @@ export class ImgScaleupService {
 
       if(res.data.progress == 100) {
         await sql`UPDATE img_scaleup_job
-                  SET response_time = ${new Date().toISOString()},
+                  SET response_time = ${new Date().toISOString()}
                   WHERE file_name = ${filename} AND response_time IS NULL`;
       }
       if(res.data.progress == 100 && res1.at(0)!.output_path == null) {
