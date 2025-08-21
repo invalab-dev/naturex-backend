@@ -19,6 +19,7 @@ export class S3Service {
   });
 
   async putObject(bucketName: string, key: string, body: any) {
+    console.log(`${bucketName} 내 ${key} 업로드`);
     await this.s3Client.send(new PutObjectCommand({
       Bucket: bucketName,
       Key: key,
@@ -27,6 +28,7 @@ export class S3Service {
   }
 
   async getObject(bucketName: string, key: string): Promise<any> {
+    console.log(`${bucketName} 내 ${key} 다운로드`);
     const { Body } = await this.s3Client.send(new GetObjectCommand({
       Bucket: bucketName,
       Key: key,
