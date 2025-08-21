@@ -22,11 +22,11 @@ export class ImgScaleupController {
   @Post("upload")
   @UseInterceptors(FileInterceptor("image"))
   async uploadImage(@UploadedFile() image: Express.Multer.File) {
-    return this.imgScaleupService.uploadImage(image);
+    return this.imgScaleupService.upload(image);
   }
 
   @Get("progress/:filename")
   async checkProgress(@Param("filename") filename: string) {
-    return this.imgScaleupService.checkProgress(filename);
+    return this.imgScaleupService.progress(filename);
   }
 }
