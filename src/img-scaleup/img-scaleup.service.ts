@@ -17,9 +17,7 @@ export class ImgScaleupService {
 
   async upload(image: Express.Multer.File) {
     const filename = `${uuidv4()}-${image.originalname}`;
-
-    this.uploadInput(new Uint8Array(image.buffer), filename);
-
+    
     const form = new FormData();
     form.append("image", new Blob([new Uint8Array(image.buffer)], { type: image.mimetype }), filename);
 
@@ -34,6 +32,9 @@ export class ImgScaleupService {
                  "file_name": filename,
                  "request_time": new Date().toISOString(),
                 }, "file_name", "request_time")}`;
+
+      // INSERT 후 UPDATE가 일어나도록 보장
+      this.uploadInput(new Uint8Array(image.buffer), filename);
 
       return { filename };
     } else {
@@ -63,8 +64,6 @@ export class ImgScaleupService {
       this.httpService.get(`${this.gpu_server_host}/download/${filename}`, {
         "responseType": 'arraybuffer'
       }));
-
-    console.log(`response: ${res}`);
 
     if(res.status === HttpStatus.OK) {
       const image = new Uint8Array(res.data);
@@ -110,9 +109,10 @@ export class ImgScaleupService {
             this.uploadOutput(filename);
           }
         } catch(e) {
+          console.log(`error: ${e}`);
           await sql`UPDATE img_scaleup_job
-                  SET output_path = NULL
-                  WHERE file_name = ${filename}`;
+                    SET output_path = NULL
+                    WHERE file_name = ${filename}`;
         }
       }
 
