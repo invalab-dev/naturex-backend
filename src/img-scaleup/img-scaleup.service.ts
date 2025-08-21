@@ -8,7 +8,7 @@ import { Readable } from 'stream';
 
 @Injectable()
 export class ImgScaleupService {
-  private readonly gpu_server_url = "http://10.0.2.8:81";
+  private readonly gpu_server_host = process.env.GPU_SERVER_HOST!;
 
   constructor(private readonly httpService: HttpService,
               private readonly s3Service: S3Service,
@@ -24,7 +24,7 @@ export class ImgScaleupService {
     form.append("image", new Blob([new Uint8Array(image.buffer)], { type: image.mimetype }), filename);
 
     const res = await firstValueFrom(
-      this.httpService.post(`${this.gpu_server_url}/upload`, form),
+      this.httpService.post(`${this.gpu_server_host}/upload`, form),
     );
 
     if(res.status === HttpStatus.OK) {
@@ -61,21 +61,21 @@ export class ImgScaleupService {
 
   private async uploadOutput(filename: string) {
     const res = await firstValueFrom(
-      this.httpService.get(`${this.gpu_server_url}/download/${filename}`, {
+      this.httpService.get(`${this.gpu_server_host}/download/${filename}`, {
         "responseType": 'arraybuffer'
       }));
     if(res.status === HttpStatus.OK) {
       const image = new Uint8Array(res.data);
       await this.uploadCloud(image, filename, false);
       await firstValueFrom(
-        this.httpService.get(`${this.gpu_server_url}/delete/${filename}`)
+        this.httpService.get(`${this.gpu_server_host}/delete/${filename}`)
       );
     }
   }
 
   async progress(filename: string) {
     const res = await firstValueFrom(
-      this.httpService.get(`${this.gpu_server_url}/progress/${filename}`),
+      this.httpService.get(`${this.gpu_server_host}/progress/${filename}`),
     );
     const sql = this.postgresService.sql;
 
