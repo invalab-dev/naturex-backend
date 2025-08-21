@@ -103,7 +103,7 @@ export class ImgScaleupService {
           await sql`UPDATE img_scaleup_job
                     SET output_path = ${""}
                     WHERE file_name = ${filename} AND output_path IS NULL
-                    RETURNING filename`;
+                    RETURNING file_name`;
 
         try {
           if(res2.length > 0) {
