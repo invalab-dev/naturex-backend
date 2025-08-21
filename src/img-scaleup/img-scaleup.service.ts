@@ -50,7 +50,7 @@ export class ImgScaleupService {
 
     const sql = this.postgresService.sql;
     await sql`UPDATE img_scaleup_job
-              SET ${isInput ? "input_path" : "output_path"} = ${path}
+              SET ${sql(isInput ? "input_path" : "output_path")} = ${path}
               WHERE file_name = ${filename}`;
   }
 
