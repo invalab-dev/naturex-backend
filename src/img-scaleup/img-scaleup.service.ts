@@ -30,7 +30,7 @@ export class ImgScaleupService {
     if(res.status === HttpStatus.OK) {
       const sql = this.postgresService.sql;
 
-      await sql`INSERT INTO image_scaleup ${sql({
+      await sql`INSERT INTO img_scaleup_job ${sql({
                  "file_name": filename,
                  "request_time": new Date().toISOString(),
                 }, "file_name", "request_time")}`;
@@ -48,7 +48,7 @@ export class ImgScaleupService {
     await this.s3Service.putObject(bucketName, key, new Uint8Array(image.buffer));
 
     const sql = this.postgresService.sql;
-    await sql`UPDATE image_scaleup
+    await sql`UPDATE img_scaleup_job
               SET ${isInput ? "input_path" : "output_path"}
               WHERE file_name = ${filename}`;
   }
@@ -86,7 +86,7 @@ export class ImgScaleupService {
                     response_time,
                     input_path,
                     output_path
-                  FROM image_scaleup
+                  FROM img_scaleup_job
                   WHERE file_name = ${filename}`;
 
       if(res.data.progress == 100) {
