@@ -35,7 +35,7 @@ export class ImgScaleupService {
     const stream = await this.s3Service.getObject(bucket, key);
     await firstValueFrom(
       this.httpService.post(
-        `${this.fastApiURL}/save-file/${id}`,
+        `${this.fastApiURL}/save-file?id=${id}&filename=${fileURL.replaceAll("/", "-").replaceAll(":", "-")}`,
         stream,
         {
           headers: {
@@ -48,7 +48,7 @@ export class ImgScaleupService {
     );
     await firstValueFrom(
       this.httpService.post(
-        `${this.fastApiURL}/start/${id}`,
+        `${this.fastApiURL}/start/?id=${id}`,
       ),
     );
 
@@ -59,7 +59,7 @@ export class ImgScaleupService {
     const sql = this.postgresService.sql;
 
     const res2 = await firstValueFrom(
-      this.httpService.get(`${this.fastApiURL}/download/${id}`, {
+      this.httpService.get(`${this.fastApiURL}/download?id=${id}`, {
         "responseType": 'stream'
       }));
 
@@ -70,13 +70,13 @@ export class ImgScaleupService {
     await this.s3Service.putObject(bucket, key, stream);
 
     await firstValueFrom(
-      this.httpService.get(`${this.fastApiURL}/delete/${id}`)
+      this.httpService.get(`${this.fastApiURL}/delete?id=${id}`)
     );
   }
 
   async progress(id: string) {
     const res = await firstValueFrom(
-      this.httpService.get(`${this.fastApiURL}/progress/${id}`),
+      this.httpService.get(`${this.fastApiURL}/progress?id=${id}`),
     );
     const sql = this.postgresService.sql;
 
