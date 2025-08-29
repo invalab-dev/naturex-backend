@@ -24,7 +24,7 @@ export class ImgScaleupService {
 
     const res =
       await sql`INSERT INTO img_scaleup_job("input_path", "output_path")
-                VALUES(${fileURL}, ${outputPath});
+                VALUES(${fileURL}, ${outputPath})
                 RETURNING id`;
     const id = res.at(0)!.data.id;
     await sql`INSERT INTO job_progress("job_name", "job_id")
