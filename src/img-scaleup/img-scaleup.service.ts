@@ -30,8 +30,8 @@ export class ImgScaleupService {
               VALUES(${"img_scaleup_job"}, ${id})`;
 
     // buffer가 아닌 stream으로 파일 보내기
-    const bucket = fileURL.split("/")[0];
-    const key = fileURL.split("/")[1];
+    const bucket = fileURL.split(":")[0];
+    const key = fileURL.split(":")[1];
     const stream = await this.s3Service.getObject(bucket, key);
     await firstValueFrom(
       this.httpService.post(
