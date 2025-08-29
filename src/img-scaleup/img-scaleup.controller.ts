@@ -25,8 +25,8 @@ export class ImgScaleupController {
     return this.imgScaleupService.start(fileURL);
   }
 
-  @Get("progress/:id")
-  async checkProgress(@Param("id") id: string) {
+  @Get("progress")
+  async checkProgress(@Query("id") id: string) {
     return this.imgScaleupService.progress(id);
   }
 }
