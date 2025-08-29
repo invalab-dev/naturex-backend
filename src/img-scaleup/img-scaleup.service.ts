@@ -93,7 +93,7 @@ export class ImgScaleupService {
         await sql`UPDATE job_progress
                   SET progress = ${res.data.progress}
                   WHERE job_name = ${"img_scaleup_job"} AND job_id = ${id}
-                  RETURNING progerss`;
+                  RETURNING progress`;
 
       let outputAvailable = false;
       if(res.data.progress == 100) {
