@@ -2,125 +2,119 @@ import { HttpException, HttpStatus, Injectable, InternalServerErrorException } f
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { S3Service } from '../s3.service';
-import { v4 as uuidv4 } from 'uuid';
 import { PostgresService } from '../postgres.service';
 import { Readable } from 'stream';
+import * as path from "node:path";
+
 
 @Injectable()
 export class ImgScaleupService {
-  private readonly gpu_server_host = process.env.GPU_SERVER_HOST!;
+  private readonly fastApiURL = process.env.FAST_API_URL!;
 
   constructor(private readonly httpService: HttpService,
               private readonly s3Service: S3Service,
               private readonly postgresService: PostgresService,
               ) {}
 
-  async upload(image: Express.Multer.File) {
-    const filename = `${uuidv4()}-${image.originalname}`;
-    
-    const form = new FormData();
-    form.append("image", new Blob([new Uint8Array(image.buffer)], { type: image.mimetype }), filename);
+  async start(fileURL: string) {
+    const sql = this.postgresService.sql;
 
-    const res = await firstValueFrom(
-      this.httpService.post(`${this.gpu_server_host}/upload`, form),
+    const filename = fileURL.split("/")[1];
+    const outputPath = `img-scaleup:outputs/${filename}`;
+
+    const res =
+      await sql`INSERT INTO img_scaleup_job("input_path", "output_path")
+                VALUES(${fileURL}, ${outputPath});
+                RETURNING id`;
+    const id = res.at(0)!.data.id;
+    await sql`INSERT INTO job_progress("job_name", "job_id")
+              VALUES(${"img_scaleup_job"}, ${id})`;
+
+    // buffer가 아닌 stream으로 파일 보내기
+    const bucket = fileURL.split("/")[0];
+    const key = fileURL.split("/")[1];
+    const stream = await this.s3Service.getObject(bucket, key);
+    await firstValueFrom(
+      this.httpService.post(
+        `${this.fastApiURL}/v1/save-file/${id}`,
+        stream,
+        {
+          headers: {
+            "Content-Type": "application/octet-stream",
+          },
+          maxContentLength: Infinity,
+          maxBodyLength: Infinity,
+        }
+      ),
+    );
+    await firstValueFrom(
+      this.httpService.post(
+        `${this.fastApiURL}/start/${id}`,
+      ),
     );
 
-    if(res.status === HttpStatus.OK) {
-      const sql = this.postgresService.sql;
-
-      await sql`INSERT INTO img_scaleup_job ${sql({
-                 "file_name": filename,
-                 "request_time": new Date().toISOString(),
-                }, "file_name", "request_time")}`;
-
-      // INSERT 후 UPDATE가 일어나도록 보장
-      this.uploadInput(new Uint8Array(image.buffer), filename);
-
-      return { filename };
-    } else {
-      throw new InternalServerErrorException();
-    }
+    return { id };
   }
 
-  private async uploadCloud(image: Uint8Array, filename: string, isInput: boolean) {
-    const bucketName = "img-scaleup";
-    const key = `${isInput ? "inputs" : "outputs"}/${filename}`;
-    const path = `${bucketName}:${key}`;
-
-    await this.s3Service.putObject(bucketName, key, new Uint8Array(image.buffer));
-
+  private async uploadOutput(id: string, fileURL: string) {
     const sql = this.postgresService.sql;
-    await sql`UPDATE img_scaleup_job
-              SET ${sql(isInput ? "input_path" : "output_path")} = ${path}
-              WHERE file_name = ${filename}`;
-  }
 
-  private async uploadInput(image: Uint8Array, filename: string) {
-    await this.uploadCloud(image, filename, true);
-  }
-
-  private async uploadOutput(filename: string) {
-    const res = await firstValueFrom(
-      this.httpService.get(`${this.gpu_server_host}/download/${filename}`, {
-        "responseType": 'arraybuffer'
+    const res2 = await firstValueFrom(
+      this.httpService.get(`${this.fastApiURL}/download/${id}`, {
+        "responseType": 'stream'
       }));
 
-    if(res.status === HttpStatus.OK) {
-      const image = new Uint8Array(res.data);
-      await this.uploadCloud(image, filename, false);
-      await firstValueFrom(
-        this.httpService.get(`${this.gpu_server_host}/delete/${filename}`)
-      );
-    }
+    const stream = res2.data as NodeJS.ReadableStream;
+    const bucket = fileURL.split(":")[0];
+    const key = fileURL.split(":")[1];
+
+    await this.s3Service.putObject(bucket, key, stream);
+
+    await firstValueFrom(
+      this.httpService.get(`${this.fastApiURL}/delete/${id}`)
+    );
   }
 
-  async progress(filename: string) {
+  async progress(id: string) {
     const res = await firstValueFrom(
-      this.httpService.get(`${this.gpu_server_host}/progress/${filename}`),
+      this.httpService.get(`${this.fastApiURL}/progress/${id}`),
     );
     const sql = this.postgresService.sql;
 
     if(res.status === HttpStatus.OK) {
-      console.log(`${filename}'s progress: ${res.data.progress}`);
+      console.log(`${id}'s progress: ${res.data.progress}`);
 
-      const res1 =
-        await sql`SELECT 
-                    request_time, 
-                    response_time,
-                    input_path,
-                    output_path
-                  FROM img_scaleup_job
-                  WHERE file_name = ${filename}`;
-
-      if(res.data.progress == 100) {
+      const res2 =
         await sql`UPDATE img_scaleup_job
-                  SET response_time = ${new Date().toISOString()}
-                  WHERE file_name = ${filename} AND response_time IS NULL`;
-      }
-      if(res.data.progress == 100 && res1.at(0)!.output_path == null) {
-        const res2 =
-          await sql`UPDATE img_scaleup_job
-                    SET output_path = ${""}
-                    WHERE file_name = ${filename} AND output_path IS NULL
-                    RETURNING file_name`;
+                  SET started_time = ${res.data.started_time},
+                      completed_time = ${res.data.completed_time}
+                  WHERE id = ${id}
+                  RETURNING started_time, completed_time, input_path, output_path`;
+      const res3 =
+        await sql`UPDATE job_progress
+                  SET progress = ${res.data.progress}
+                  WHERE job_name = ${sql("img_scaleup_job")} AND job_id = ${id}
+                  RETURNING progerss`;
 
+      let outputAvailable = false;
+      if(res.data.progress == 100) {
         try {
-          if(res2.length > 0) {
-            this.uploadOutput(filename);
-          }
+          this.uploadOutput(id, res2.at(0)!.output_path).then(() => {
+            outputAvailable = true;
+          });
         } catch(e) {
           console.log(`error: ${e}`);
-          await sql`UPDATE img_scaleup_job
-                    SET output_path = NULL
-                    WHERE file_name = ${filename}`;
+
         }
       }
 
       return {
-        requestTime: res1.at(0)!.request_time,
-        responseTime: res1.at(0)!.response_time,
-        inputPath: res1.at(0)!.input_path,
-        outputPath: res1.at(0)!.output_path?.length > 0 ? res1.at(0)!.output_path : null,
+        startedTime: res2.at(0)!.started_time,
+        completedTime: res2.at(0)!.completed_time,
+        progress: res3.at(0)!.progress,
+        inputPath: res2.at(0)!.input_path,
+        outputPath: res2.at(0)!.output_path,
+        outputAvailable: outputAvailable,
       };
     } else {
       throw new InternalServerErrorException();

@@ -12,23 +12,21 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { S3Service } from '../s3.service';
 import { ImgScaleupService } from './img-scaleup.service';
 
 
-@Controller()
+@Controller("img-scaleup")
 export class ImgScaleupController {
   constructor(private readonly imgScaleupService: ImgScaleupService) {}
 
-  @Post("upload")
+  @Post("start")
   @HttpCode(200)
-  @UseInterceptors(FileInterceptor("image"))
-  async uploadImage(@UploadedFile() image: Express.Multer.File) {
-    return this.imgScaleupService.upload(image);
+  async uploadImage(@Body("file_url") fileURL: string) {
+    return this.imgScaleupService.start(fileURL);
   }
 
-  @Get("progress/:filename")
-  async checkProgress(@Param("filename") filename: string) {
-    return this.imgScaleupService.progress(filename);
+  @Get("progress/:id")
+  async checkProgress(@Param("id") id: string) {
+    return this.imgScaleupService.progress(id);
   }
 }
