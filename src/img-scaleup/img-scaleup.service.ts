@@ -35,7 +35,7 @@ export class ImgScaleupService {
     const stream = await this.s3Service.getObject(bucket, key);
     await firstValueFrom(
       this.httpService.post(
-        `${this.fastApiURL}/v1/save-file/${id}`,
+        `${this.fastApiURL}/save-file/${id}`,
         stream,
         {
           headers: {
