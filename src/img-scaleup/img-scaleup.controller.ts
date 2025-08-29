@@ -21,7 +21,7 @@ export class ImgScaleupController {
 
   @Post("start")
   @HttpCode(200)
-  async uploadImage(@Body("file_url") fileURL: string) {
+  async uploadImage(@Body("fileURL") fileURL: string) {
     return this.imgScaleupService.start(fileURL);
   }
 
