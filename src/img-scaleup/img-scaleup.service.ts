@@ -22,12 +22,11 @@ export class ImgScaleupService {
     const filename = fileURL.split("/")[1];
     const outputPath = `img-scaleup:outputs/${filename}`;
 
-    const res =
-      await sql`INSERT INTO img_scaleup_job("input_path", "output_path")
+    const [{ id }] =
+      await sql`INSERT INTO img_scaleup_job(input_path, output_path)
                 VALUES(${fileURL}, ${outputPath})
                 RETURNING id`;
-    const id = res.at(0)!.data.id;
-    await sql`INSERT INTO job_progress("job_name", "job_id")
+    await sql`INSERT INTO job_progress(job_name, job_id)
               VALUES(${"img_scaleup_job"}, ${id})`;
 
     // buffer가 아닌 stream으로 파일 보내기
@@ -93,7 +92,7 @@ export class ImgScaleupService {
       const res3 =
         await sql`UPDATE job_progress
                   SET progress = ${res.data.progress}
-                  WHERE job_name = ${sql("img_scaleup_job")} AND job_id = ${id}
+                  WHERE job_name = ${"img_scaleup_job"} AND job_id = ${id}
                   RETURNING progerss`;
 
       let outputAvailable = false;
