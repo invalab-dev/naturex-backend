@@ -5,6 +5,8 @@ import {
   PutObjectCommandOutput,
   S3Client,
 } from '@aws-sdk/client-s3';
+import { firstValueFrom } from 'rxjs';
+import { PostgresService } from './postgres.service';
 
 
 @Injectable()
@@ -18,12 +20,31 @@ export class S3Service {
     }
   });
 
-  async putObject(bucketName: string, key: string, body: any) {
-    return await this.s3Client.send(new PutObjectCommand({
-      Bucket: bucketName,
+  constructor(private readonly postgresService: PostgresService) {}
+
+  async putObject(fileURL: string, body: any) {
+    const sql = this.postgresService.sql;
+    const bucket = fileURL.split(":")[0];
+    const key = fileURL.split(":")[1];
+
+    const [{ uploadJobId }] =
+      await sql`INSERT INTO upload_job(file_url) 
+              VALUES(${fileURL})
+              RETURNING id as uploadJobId`;
+    await sql`INSERT INTO job_progress(job_name, job_id)
+              VALUES(${"upload_job"}, ${uploadJobId})`;
+
+    this.s3Client.send(new PutObjectCommand({
+      Bucket: bucket,
       Key: key,
       Body: body
-    }));
+    })).then(async () => {
+      await sql`UPDATE job_progress
+              SET progress = ${100}
+              WHERE job_name = ${"upload_job"} AND job_id = ${uploadJobId}`;
+    });
+
+    return uploadJobId;
   }
 
   async getObject(bucketName: string, key: string): Promise<NodeJS.ReadableStream> {

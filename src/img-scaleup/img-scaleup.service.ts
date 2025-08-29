@@ -56,22 +56,20 @@ export class ImgScaleupService {
   }
 
   private async uploadOutput(id: string, fileURL: string) {
-    const sql = this.postgresService.sql;
-
     const res2 = await firstValueFrom(
       this.httpService.get(`${this.fastApiURL}/download?id=${id}`, {
         "responseType": 'stream'
       }));
 
     const stream = res2.data as NodeJS.ReadableStream;
-    const bucket = fileURL.split(":")[0];
-    const key = fileURL.split(":")[1];
 
-    await this.s3Service.putObject(bucket, key, stream);
+    const uploadJobId = await this.s3Service.putObject(fileURL, stream);
 
     await firstValueFrom(
       this.httpService.get(`${this.fastApiURL}/delete?id=${id}`)
     );
+
+    return uploadJobId;
   }
 
   async progress(id: string) {
@@ -83,13 +81,13 @@ export class ImgScaleupService {
     if(res.status === HttpStatus.OK) {
       console.log(`${id}'s progress: ${res.data.progress}`);
 
-      const res2 =
+      const [{ startedTime, completedTime, inputPath, outputPath }] =
         await sql`UPDATE img_scaleup_job
                   SET started_time = ${res.data.started_time},
                       completed_time = ${res.data.completed_time}
                   WHERE id = ${id}
                   RETURNING started_time, completed_time, input_path, output_path`;
-      const res3 =
+      const [{ progress }] =
         await sql`UPDATE job_progress
                   SET progress = ${res.data.progress}
                   WHERE job_name = ${"img_scaleup_job"} AND job_id = ${id}
@@ -98,21 +96,29 @@ export class ImgScaleupService {
       let outputAvailable = false;
       if(res.data.progress == 100) {
         try {
-          this.uploadOutput(id, res2.at(0)!.output_path).then(() => {
-            outputAvailable = true;
-          });
+          const res2 =
+            await sql`UPDATE img_scaleup_job
+                      SET after_job_id = ${""}
+                      WHERE id = ${id} AND after_job_id IS NULL`;
+          if(res2.length > 0) {
+            this.uploadOutput(id, outputPath).then(async (uploadJobId) => {
+              await sql`UPDATE img_scaleup_job
+                        SET after_job_id = ${uploadJobId}
+                        WHERE id = ${id}`;
+              outputAvailable = true;
+            });
+          }
         } catch(e) {
           console.log(`error: ${e}`);
-
         }
       }
 
       return {
-        startedTime: res2.at(0)!.started_time,
-        completedTime: res2.at(0)!.completed_time,
-        progress: res3.at(0)!.progress,
-        inputPath: res2.at(0)!.input_path,
-        outputPath: res2.at(0)!.output_path,
+        startedTime: startedTime,
+        completedTime: completedTime,
+        progress: progress,
+        inputPath: inputPath,
+        outputPath: outputPath,
         outputAvailable: outputAvailable,
       };
     } else {
