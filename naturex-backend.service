@@ -1,0 +1,13 @@
+[Unit]
+Description=naturex-backend app
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/naturex-backend
+ExecStart=/root/.nvm/versions/node/v22.18.0/bin/node dist/main.js
+Environment=PORT=3001
+
+[Install]
+WantedBy=multi-user.target
