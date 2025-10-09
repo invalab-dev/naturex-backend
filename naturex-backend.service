@@ -7,7 +7,7 @@ Type=simple
 User=root
 WorkingDirectory=/root/naturex-backend
 Environment=PATH=/root/.nvm/versions/node/v22.18.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-ExecStart=/root/.nvm/versions/node/v22.18.0/bin/npx dotenvx run -f .env.naturex-backend -- /root/.nvm/versions/node/v22.18.0/bin/node dist/main.js
+ExecStart=/root/.nvm/versions/node/v22.18.0/bin/npx dotenvx run -f .env.naturex-backend.prod -- /root/.nvm/versions/node/v22.18.0/bin/node dist/main.js
 
 [Install]
 WantedBy=multi-user.target

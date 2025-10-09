@@ -86,7 +86,7 @@ jobs:
             unzip release.zip -d naturex-backend
             rm release.zip
             mv -f naturex-backend/naturex-backend.service /etc/systemd/system
-            cp -f .env.naturex-backend naturex-backend
+            cp -f .env.naturex-backend.prod naturex-backend
 
       - name: Restart systemd service
         uses: appleboy/ssh-action@v1.0.3

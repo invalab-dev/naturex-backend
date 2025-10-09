@@ -1,8 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PostgresService } from '../postgres.service';
-import { users } from './mock';
-
-
 
 export class User {
   constructor(
@@ -20,8 +17,6 @@ export class UsersService {
   ) {}
 
   async findOne(email: string): Promise<User | undefined> {
-    // return users.find(user => user.email == email);
-
     const sql = this.postgresService.sql;
 
     const res = await sql`SELECT * FROM users WHERE email = ${email}`;
@@ -37,11 +32,6 @@ export class UsersService {
     if(await this.findOne(email)) {
       throw new BadRequestException('User already exists');
     }
-
-    // const newUser = new User(-1, "new user", "new_user@example.com", "123");
-    // console.log("새로운 유저가 생성되었습니다.");
-    // users.push(newUser);
-    // return newUser;
 
     const sql = this.postgresService.sql;
 
