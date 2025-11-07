@@ -13,7 +13,7 @@ export class AuthService {
   async signUp(email: string, password: string, name: string): Promise<any> {
     const user = await this.usersService.createOne(email, password, name);
 
-    const payload = { usb: user.id, username: user.name };
+    const payload = { sub: user.id, username: user.name };
     return {
       access_token: await this.jwtService.signAsync(payload),
     }
@@ -26,9 +26,10 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const payload = { usb: user.id, username: user.name };
+    const payload = { sub: user.id, username: user.name };
+    const access_token = await this.jwtService.signAsync(payload);
     return {
-      access_token: await this.jwtService.signAsync(payload),
+      access_token: access_token
     }
   }
 }
