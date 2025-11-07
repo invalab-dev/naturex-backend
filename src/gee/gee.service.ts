@@ -5,29 +5,29 @@ import * as ee from '@google/earthengine';
 export class GeeService implements OnModuleInit {
 
   async onModuleInit() {
-    const b64 = process.env.GEE_SA_KEY_B64!;
-    const json = Buffer.from(b64, 'base64').toString('utf-8');
-    const saKey = JSON.parse(json);
-
-    // 계정 로그인
-    await new Promise<void>((resolve, reject) => {
-      ee.data.authenticateViaPrivateKey(
-        saKey,
-        () => resolve(),
-        (e: any) => reject(e),
-      );
-    });
-
-    // 프로젝트 연결
-    await new Promise<void>((resolve, reject) => {
-      ee.initialize(
-        null, // baseUrl (기본)
-        null, // tileUrl (기본)
-        () => resolve(),
-        (e: any) => reject(e),
-        process.env.GEE_PROJECT_ID, // Cloud Project
-      );
-    });
+    // const b64 = process.env.GEE_SA_KEY_B64!;
+    // const json = Buffer.from(b64, 'base64').toString('utf-8');
+    // const saKey = JSON.parse(json);
+    //
+    // // 계정 로그인
+    // await new Promise<void>((resolve, reject) => {
+    //   ee.data.authenticateViaPrivateKey(
+    //     saKey,
+    //     () => resolve(),
+    //     (e: any) => reject(e),
+    //   );
+    // });
+    //
+    // // 프로젝트 연결
+    // await new Promise<void>((resolve, reject) => {
+    //   ee.initialize(
+    //     null, // baseUrl (기본)
+    //     null, // tileUrl (기본)
+    //     () => resolve(),
+    //     (e: any) => reject(e),
+    //     process.env.GEE_PROJECT_ID, // Cloud Project
+    //   );
+    // });
   }
 
   // Sentinel-2 합성 이미지 만들기
