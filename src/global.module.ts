@@ -1,11 +1,11 @@
 import { Global, Module } from '@nestjs/common';
-import { PostgresService } from './postgres.service';
-import { GeeModule } from './gee/gee.module';
+import { StorageService } from './storage.service.js';
+import { PostgresService } from './postgres.service.js';
 
 @Global()
 @Module({
-  imports: [GeeModule],
-  providers: [PostgresService],
-  exports: [PostgresService]
+  imports: [],
+  providers: [PostgresService, StorageService],
+  exports: [PostgresService, StorageService],
 })
 export class GlobalModule {}

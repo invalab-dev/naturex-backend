@@ -1,8 +1,8 @@
 import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Inject } from '@nestjs/common';
-import { UpsertMetaDto } from './dto/upsert-meta.dto';
-import { PostgresService } from '../postgres.service';
-import { CreateProjectDto } from './dto/create-project.dto';
+import { PostgresService } from '../postgres.service.js';
+import { CreateProjectDto } from './dto/create-project.dto.js';
+import { UpsertMetaDto } from './dto/upsert-meta.dto.js';
 
 @Injectable()
 export class ProjectsService {

@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { GlobalModule } from './global.module';
-import { AuthModule } from './auth/auth.module';
-import { ConfigModule } from '@nestjs/config';
-import { AreaGroupsModule } from './map/area-groups/area-groups.module';
-import { ProjectsModule } from './projects/projects.module';
+import { BullModule } from '@nestjs/bullmq';
+import { GlobalModule } from './global.module.js';
+import { AuthModule } from './auth/auth.module.js';
+import { ProjectsModule } from './projects/projects.module.js';
+import { AreaGroupsModule } from './map/area-groups/area-groups.module.js';
+import { UploadsModule } from './uploads/uploads.module.js';
+import { QueueModule } from './queue/queue.module.js';
+import { AppController } from './app.controller.js';
+import { AppService } from './app.service.js';
 
 @Module({
   imports: [
@@ -13,6 +15,14 @@ import { ProjectsModule } from './projects/projects.module';
     AuthModule,
     ProjectsModule,
     AreaGroupsModule,
+    UploadsModule,
+    BullModule.forRoot({
+      connection: {
+        host: 'localhost',
+        port: 6379,
+      },
+    }),
+    QueueModule,
   ],
   controllers: [AppController],
   providers: [AppService],

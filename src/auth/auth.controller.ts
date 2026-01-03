@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, HttpCode, HttpStatus, Post, Res } from '@nestjs/common';
-import { AuthService } from './auth.service';
 import { type Response } from 'express';
-import { Public } from './guards/jwt-access.guard';
+import { AuthService } from './auth.service.js';
+import { Public } from './guards/jwt-access.guard.js';
 
 
 @Controller("auth")

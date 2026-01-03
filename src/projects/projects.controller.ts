@@ -9,10 +9,11 @@ import {
   Query,
   Req,
 } from '@nestjs/common';
-import { ProjectsService } from './projects.service';
-import { GetProjectsQuery } from './dto/get-projects.query';
-import { UpsertMetaDto } from './dto/upsert-meta.dto';
-import { CreateProjectDto } from './dto/create-project.dto';
+import { ProjectsService } from './projects.service.js';
+import { CreateProjectDto } from './dto/create-project.dto.js';
+import {GetProjectsQuery} from "./dto/get-projects.query.js";
+import {UpsertMetaDto} from "./dto/upsert-meta.dto.js";
+
 
 @Controller('projects')
 export class ProjectsController {

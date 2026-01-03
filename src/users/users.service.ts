@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { PostgresService } from '../postgres.service';
+import { PostgresService } from '../postgres.service.js';
 
 export class User {
   constructor(

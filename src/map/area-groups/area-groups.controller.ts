@@ -1,8 +1,8 @@
 import {
   Controller, Get, Param, Query, Delete, Put, Body, UseGuards, Req
 } from '@nestjs/common';
-import { AreaGroupsService } from './area-groups.service';
-import { UpsertAreaGroupsDto } from './dto/upsert-area-groups.dto';
+import { AreaGroupsService } from './area-groups.service.js';
+import { UpsertAreaGroupsDto } from './dto/upsert-area-groups.dto.js';
 
 
 @Controller('projects/:id/map/area_groups')

@@ -11,7 +11,7 @@ export class JwtAccessStrategy extends PassportStrategy(Strategy, 'jwt') {
         (req: Request) => req.cookies?.['access_token'],     // HttpOnly 쿠키에서 읽기
         ExtractJwt.fromAuthHeaderAsBearerToken(),            // (옵션) Bearer 호환
       ]),
-      secretOrKey: process.env.JWT_SECRET,
+      secretOrKey: process.env.JWT_SECRET!,
     });
   }
   async validate(payload: any) {

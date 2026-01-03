@@ -1,6 +1,6 @@
 import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
-import { PostgresService } from 'src/postgres.service';
-import { UpsertAreaGroupsDto } from './dto/upsert-area-groups.dto';
+import { PostgresService } from '../../postgres.service.js';
+import { UpsertAreaGroupsDto } from './dto/upsert-area-groups.dto.js';
 
 @Injectable()
 export class AreaGroupsService {
