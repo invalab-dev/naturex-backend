@@ -37,7 +37,8 @@ export class StorageService {
       }),
     );
 
-    if (!res.UploadId) throw new Error('CreateMultipartUpload returned no UploadId');
+    if (!res.UploadId)
+      throw new Error('CreateMultipartUpload returned no UploadId');
     return { uploadId: res.UploadId };
   }
 
@@ -71,14 +72,18 @@ export class StorageService {
         MultipartUpload: {
           Parts: params.parts
             .sort((a, b) => a.partNumber - b.partNumber)
-            .map(p => ({ PartNumber: p.partNumber, ETag: p.etag })),
+            .map((p) => ({ PartNumber: p.partNumber, ETag: p.etag })),
         },
       }),
     );
     return { etag: res.ETag ?? null, versionId: res.VersionId ?? null };
   }
 
-  async abortMultipartUpload(params: { bucket: string; key: string; multipartUploadId: string }) {
+  async abortMultipartUpload(params: {
+    bucket: string;
+    key: string;
+    multipartUploadId: string;
+  }) {
     await this.s3.send(
       new AbortMultipartUploadCommand({
         Bucket: params.bucket,
@@ -89,6 +94,8 @@ export class StorageService {
   }
 
   async headObject(params: { bucket: string; key: string }) {
-    return this.s3.send(new HeadObjectCommand({ Bucket: params.bucket, Key: params.key }));
+    return this.s3.send(
+      new HeadObjectCommand({ Bucket: params.bucket, Key: params.key }),
+    );
   }
 }

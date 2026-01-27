@@ -4,13 +4,13 @@ CREATE TABLE IF NOT EXISTS users (
     id              BIGSERIAL PRIMARY KEY,
     email           VARCHAR(255) NOT NULL UNIQUE,
     password        VARCHAR(255) NOT NULL,
-    role            USER_ROLE NOT NULL,
+    role            USER_ROLE NOT NULL DEFAULT 'USER',
     name            VARCHAR(100),
     phone_number    VARCHAR(30),
     bio             TEXT,
     organization_id BIGINT,
-    language        VARCHAR(10),
-    timezone        VARCHAR(50),
+    language        VARCHAR(10) NOT NULL DEFAULT 'kr', -- ISO 639-1
+    timezone        VARCHAR(50) NOT NULL DEFAULT 'Asia/Seoul', -- region/city
 
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),

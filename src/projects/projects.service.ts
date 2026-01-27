@@ -1,4 +1,8 @@
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Inject } from '@nestjs/common';
 import { PostgresService } from '../postgres.service.js';
 import { CreateProjectDto } from './dto/create-project.dto.js';
@@ -113,7 +117,11 @@ export class ProjectsService {
   }
 
   // 특정 프로젝트 메타데이터 Upsert (stage 단위)
-  async upsertProjectMeta(userId: string, projectId: string, dto: UpsertMetaDto) {
+  async upsertProjectMeta(
+    userId: string,
+    projectId: string,
+    dto: UpsertMetaDto,
+  ) {
     await this.assertProjectMembership(userId, projectId);
 
     const { stage, progress = 0, input = null, output = null } = dto;
@@ -144,6 +152,5 @@ export class ProjectsService {
       WHERE pm.project_id = ${projectId}
     `;
     return rows[0];
-
   }
 }

@@ -7,7 +7,7 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Public()
-  @Get("hello")
+  @Get('hello')
   getHello(@Req() req: any): string {
     console.log(req.user);
     return this.appService.getHello();

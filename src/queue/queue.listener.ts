@@ -1,10 +1,13 @@
-import { OnQueueEvent, QueueEventsHost, QueueEventsListener } from '@nestjs/bullmq';
+import {
+  OnQueueEvent,
+  QueueEventsHost,
+  QueueEventsListener,
+} from '@nestjs/bullmq';
 
-@QueueEventsListener("myqueue")
+@QueueEventsListener('myqueue')
 export class QueueListener extends QueueEventsHost {
-
-  @OnQueueEvent("active")
-  onActive(job: {jobId: string; prev?: string}) {
+  @OnQueueEvent('active')
+  onActive(job: { jobId: string; prev?: string }) {
     // console.log(`[queue] job(id: ${job.jobId}) is active`);
   }
 }

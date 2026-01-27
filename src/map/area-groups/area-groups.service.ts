@@ -1,4 +1,8 @@
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PostgresService } from '../../postgres.service.js';
 import { UpsertAreaGroupsDto } from './dto/upsert-area-groups.dto.js';
 
@@ -19,7 +23,11 @@ export class AreaGroupsService {
     }
   }
 
-  async upsertAreaGroups(userId: string, projectId: string, dto: UpsertAreaGroupsDto) {
+  async upsertAreaGroups(
+    userId: string,
+    projectId: string,
+    dto: UpsertAreaGroupsDto,
+  ) {
     await this.assertProjectMembership(userId, projectId);
 
     if (!dto.items || dto.items.length === 0) {
@@ -29,7 +37,7 @@ export class AreaGroupsService {
     await this.pgService.sql.begin(async (trx) => {
       for (const item of dto.items) {
         const geomText = JSON.stringify(item.feature?.geometry ?? null); // GeoJSON Geometry string
-        await trx/*sql*/`
+        await trx /*sql*/ `
           INSERT INTO area_groups (
             project_id, feature_id, name, visible, feature, geom, updated_at
           )

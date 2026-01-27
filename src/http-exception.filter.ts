@@ -8,8 +8,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = host.switchToHttp().getResponse<Response>();
     const status = exception.status || 500;
 
-    response
-      .status(status)
-      .json({});
+    response.status(status).json({});
   }
 }

@@ -16,13 +16,13 @@ import { AppService } from './app.service.js';
     ProjectsModule,
     AreaGroupsModule,
     UploadsModule,
-    BullModule.forRoot({
-      connection: {
-        host: 'localhost',
-        port: 6379,
-      },
-    }),
-    QueueModule,
+    // BullModule.forRoot({
+    //   connection: {
+    //     host: 'localhost',
+    //     port: 6379,
+    //   },
+    // }),
+    // QueueModule,
   ],
   controllers: [AppController],
   providers: [AppService],

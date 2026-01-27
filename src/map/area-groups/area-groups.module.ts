@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { Module } from '@nestjs/common';
 import { AreaGroupsController } from './area-groups.controller.js';
 import { AreaGroupsService } from './area-groups.service.js';
 

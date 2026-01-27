@@ -8,9 +8,9 @@ async function bootstrap() {
   app.use(cookieParser());
   app.useGlobalFilters(new HttpExceptionFilter());
   app.enableCors({
-    origin: ["http://localhost:3000", "http://223.130.146.58:3002"],
+    origin: ['http://localhost:3000', 'http://223.130.146.58:3002'],
     credentials: true,
   });
-  await app.listen(3001, "0.0.0.0");
+  await app.listen(3001, '0.0.0.0');
 }
 bootstrap();

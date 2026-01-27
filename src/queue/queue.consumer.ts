@@ -9,7 +9,7 @@ export class QueueConsumer extends WorkerHost {
     console.log(`[worker] c: ${c}`);
   }
 
-  @OnWorkerEvent("active")
+  @OnWorkerEvent('active')
   onActive(job: Job) {
     // console.log(`[worker] job(id: ${job.id}) is active`);
   }
