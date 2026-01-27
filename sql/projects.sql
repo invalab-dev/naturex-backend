@@ -1,7 +1,30 @@
-CREATE TABLE IF NOT EXISTS projects (
-    id              uuid    PRIMARY KEY DEFAULT gen_random_uuid(),
-    name            text NOT NULL,
+CREATE TYPE PROJECT_THEME AS ENUM('운영비 절감', '자산 가치 향상', '생물 다양성');
+CREATE TYPE PROJECT_STATUS AS ENUM('REGISTERED', 'ANALYZING', 'PROVIDING', 'COMPLETED', 'PAUSED');
 
-    created_at  timestamptz NOT NULL DEFAULT now(),
-    created_by      uuid REFERENCES users(id) ON DELETE SET NULL
+CREATE TABLE IF NOT EXISTS projects (
+    id                  BIGSERIAL PRIMARY KEY,
+    name                VARCHAR(255) NOT NULL,
+    description         TEXT,
+    location            VARCHAR(255),
+    theme               PROJECT_THEME,
+    organization_id     BIGINT,
+    manager_id          BIGINT,
+    current_status      BIGINT,
+
+    CONSTRAINT fk_projects_organization FOREIGN KEY(organization_id) REFERENCES organizations(id),
+    CONSTRAINT fk_projects_manager      FOREIGN KEY(manager_id) REFERENCES users(id)
 );
+
+CREATE TABLE IF NOT EXISTS project_status_logs (
+    id              BIGSERIAL PRIMARY KEY,
+    project_id      BIGINT NOT NULL,
+    changed_by      BIGINT,
+    description     TEXT,
+
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT fk_project_status_logs_project FOREIGN KEY(project_id) REFERENCES projects(id),
+    CONSTRAINT fk_project_status_logs_changer FOREIGN KEY(changed_by) REFERENCES users(id)
+);
+
+ALTER TABLE projects ADD CONSTRAINT fk_project_current_status FOREIGN KEY(current_status) REFERENCES project_status_logs(id);
