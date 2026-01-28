@@ -7,13 +7,13 @@ import { AuthService } from './auth.service.js';
 import { JwtAccessStrategy } from './strategies/jwt-access.strategy.js';
 import { JwtAccessGuard } from './guards/jwt-access.guard.js';
 import { AuthController } from './auth.controller.js';
-import { OrganizationsService } from '../organizations/organizations.service.js';
+import { OrganizationsModule } from '../organizations/organizations.module.js';
 
 @Module({
   imports: [
     PassportModule,
     UsersModule,
-    OrganizationsService,
+    OrganizationsModule,
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,

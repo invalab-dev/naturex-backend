@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     id              BIGSERIAL PRIMARY KEY,
     email           VARCHAR(255) NOT NULL UNIQUE,
     password        VARCHAR(255) NOT NULL,
-    role            USER_ROLE NOT NULL DEFAULT 'USER',
+    roles           USER_ROLE[] NOT NULL DEFAULT ARRAY['USER']::USER_ROLE[],
     name            VARCHAR(100),
     phone_number    VARCHAR(30),
     bio             TEXT,
@@ -15,5 +15,5 @@ CREATE TABLE IF NOT EXISTS users (
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
-    CONSTRAINT fk_users_organization FOREIGN KEY(organization_id) REFERENCES organizations(id)
+    CONSTRAINT fk_users_organization FOREIGN KEY(organization_id) REFERENCES organizations(id) ON DELETE SET NULL
 );

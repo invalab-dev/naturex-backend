@@ -13,6 +13,7 @@ import { firstValueFrom, Observable } from 'rxjs';
 export const Public = () => SetMetadata('isPublic', true);
 export const enum UserRole {
   ADMIN = 'ADMIN',
+  USER = 'USER',
 }
 export const UserRoles = (...roles: UserRole[]) =>
   SetMetadata('userRoles', roles);
@@ -51,7 +52,7 @@ export class JwtAccessGuard extends AuthGuard('jwt') {
     }
 
     const request = ctx.switchToHttp().getRequest();
-    const userRoles: UserRole[] | undefined = request.user.userRoles;
+    const userRoles: UserRole | undefined = request.user.roles;
 
     if (!userRoles || userRoles!.length === 0) {
       throw new ForbiddenException('역할 정보가 없습니다.');

@@ -1,6 +1,6 @@
-import { Controller, Get, Query, Req } from '@nestjs/common';
+import { Controller, Get, Req } from '@nestjs/common';
 import { AppService } from './app.service.js';
-import { Public } from './auth/guards/jwt-access.guard.js';
+import { Public, UserRole, UserRoles } from './auth/guards/jwt-access.guard.js';
 
 @Controller()
 export class AppController {
@@ -11,5 +11,11 @@ export class AppController {
   getHello(@Req() req: any): string {
     console.log(req.user);
     return this.appService.getHello();
+  }
+
+  @UserRoles(UserRole.USER)
+  @Get('userHello')
+  getUserHello(@Req() req: any): string {
+    return 'Hello User';
   }
 }

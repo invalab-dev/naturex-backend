@@ -2,22 +2,22 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { PostgresService } from '../postgres.service.js';
 
 export class User {
-  public id: string;
-  public email: string;
-  public password: string;
-  public role: 'ADMIN' | 'USER';
-  public name: string | null;
-  public phoneNumber: string | null;
-  public bio: string | null;
-  public organizationId: string | null;
-  public language: string;
-  public timezone: string;
+  public id!: string;
+  public email!: string;
+  public password!: string;
+  public roles!: ('ADMIN' | 'USER')[];
+  public name!: string | null;
+  public phoneNumber!: string | null;
+  public bio!: string | null;
+  public organizationId!: string | null;
+  public language!: string;
+  public timezone!: string;
 
   constructor(user: {
     id: string;
     email: string;
     password: string;
-    role: 'ADMIN' | 'USER';
+    roles: ('ADMIN' | 'USER')[];
     name: string | null;
     phoneNumber: string | null;
     bio: string | null;
@@ -58,7 +58,7 @@ export class UsersService {
     user: Omit<
       User,
       | 'id'
-      | 'role'
+      | 'roles'
       | 'name'
       | 'phoneNumber'
       | 'bio'
@@ -66,7 +66,7 @@ export class UsersService {
       | 'language'
       | 'timezone'
     > & {
-      role?: 'ADMIN' | 'USER' | undefined | null;
+      roles?: ('ADMIN' | 'USER')[] | undefined | null;
       name?: string | undefined | null;
       phoneNumber?: string | undefined | null;
       bio?: string | undefined | null;
@@ -83,7 +83,7 @@ export class UsersService {
     const res = await sql`INSERT INTO users ${sql(user, [
       ...(user.email ? ['email'] : []),
       ...(user.password ? ['password'] : []),
-      ...(user.role ? ['role'] : []),
+      ...(user.roles ? ['roles'] : []),
       ...(user.name ? ['name'] : []),
       ...(user.phoneNumber ? ['phoneNumber'] : []),
       ...(user.bio ? ['bio'] : []),
@@ -101,7 +101,7 @@ export class UsersService {
       User,
       | 'email'
       | 'password'
-      | 'role'
+      | 'roles'
       | 'name'
       | 'phoneNumber'
       | 'bio'
@@ -110,7 +110,7 @@ export class UsersService {
       | 'timezone'
     > & {
       password?: string | undefined | null;
-      role?: 'ADMIN' | 'USER' | undefined | null;
+      roles?: ('ADMIN' | 'USER')[] | undefined | null;
       phoneNumber?: string | undefined | null;
       bio?: string | undefined | null;
       organizationId?: string | undefined | null;
@@ -122,7 +122,7 @@ export class UsersService {
 
     const res = await sql`UPDATE users SET ${sql(user, [
       ...(user.password ? ['password'] : []),
-      ...(user.role ? ['role'] : []),
+      ...(user.roles ? ['roles'] : []),
       ...(user.phoneNumber ? ['phoneNumber'] : []),
       ...(user.bio ? ['bio'] : []),
       ...(user.organizationId ? ['organizationId'] : []),

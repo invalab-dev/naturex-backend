@@ -36,7 +36,7 @@ export class AuthController {
     const obj = {
       email: signUpDTO.email as string,
       password: signUpDTO.password as string,
-      role: signUpDTO.role as 'ADMIN' | 'USER' | undefined | null,
+      roles: signUpDTO.roles as ('ADMIN' | 'USER')[] | undefined | null,
       name: signUpDTO.name as string | undefined | null,
       phoneNumber: signUpDTO.phoneNumber as string | undefined | null,
       bio: signUpDTO.bio as string | undefined | null,

@@ -2,12 +2,12 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { PostgresService } from '../postgres.service.js';
 
 export class Organization {
-  public id: string;
-  public name: string;
-  public type: 'COMPANY' | 'PUBLIC' | 'NGO';
-  public size: 'SOLO' | 'SMALL' | 'MEDIUM' | 'ENTERPRISE';
-  public website: string | null;
-  public status: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
+  public id!: string;
+  public name!: string;
+  public type!: 'COMPANY' | 'PUBLIC' | 'NGO';
+  public size!: 'SOLO' | 'SMALL' | 'MEDIUM' | 'ENTERPRISE';
+  public website!: string | null;
+  public status!: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
 
   constructor(org: {
     id: string;

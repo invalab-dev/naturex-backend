@@ -13,7 +13,7 @@ export class AuthService {
     userDTO: Omit<
       User,
       | 'id'
-      | 'role'
+      | 'roles'
       | 'name'
       | 'phoneNumber'
       | 'bio'
@@ -21,7 +21,7 @@ export class AuthService {
       | 'language'
       | 'timezone'
     > & {
-      role?: 'ADMIN' | 'USER' | undefined | null;
+      roles?: ('ADMIN' | 'USER')[] | undefined | null;
       name?: string | undefined | null;
       phoneNumber?: string | undefined | null;
       bio?: string | undefined | null;
