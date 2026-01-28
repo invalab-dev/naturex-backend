@@ -1,156 +1,204 @@
-import {
-  Injectable,
-  ForbiddenException,
-  NotFoundException,
-} from '@nestjs/common';
-import { Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PostgresService } from '../postgres.service.js';
-import { CreateProjectDto } from './dto/create-project.dto.js';
-import { UpsertMetaDto } from './dto/upsert-meta.dto.js';
+
+export type ProjectTheme = '운영비 절감' | '자산 가치 향상' | '생물 다양성';
+
+export type ProjectStatus =
+  | 'REGISTERED'
+  | 'ANALYZING'
+  | 'PROVIDING'
+  | 'COMPLETED'
+  | 'PAUSED';
+
+export class ProjectStatusLog {
+  id!: string;
+  status!: ProjectStatus;
+  changedBy!: string;
+  description!: string | undefined | null;
+
+  constructor(statusLog: {
+    id: string;
+    status: ProjectStatus;
+    changedBy: string;
+    description: string | undefined | null;
+  }) {
+    this.id = statusLog.id;
+    this.status = statusLog.status;
+    this.changedBy = statusLog.changedBy;
+    this.description = statusLog.description;
+  }
+}
+
+export class Project {
+  public id!: string;
+  public name!: string;
+  public description!: string | null;
+  public location!: string | null;
+  public theme!: ProjectTheme;
+  public organizationId!: string | null;
+  public managerId!: string | null;
+  public currentStatus!: ProjectStatus;
+
+  constructor(project: {
+    id: string;
+    name: string;
+    description: string | null;
+    location: string | null;
+    theme: ProjectTheme;
+    organizationId: string | null;
+    managerId: string | null;
+    currentStatus: ProjectStatus;
+  }) {
+    this.id = project.id;
+    this.name = project.name;
+    this.description = project.description;
+    this.location = project.location;
+    this.theme = project.theme;
+    this.organizationId = project.organizationId;
+    this.managerId = project.managerId;
+    this.currentStatus = project.currentStatus;
+  }
+}
 
 @Injectable()
 export class ProjectsService {
   constructor(private readonly pgService: PostgresService) {}
 
-  // 프로젝트 생성 + 생성자 membership 연결
-  async createProject(userId: string, dto: CreateProjectDto) {
-    return this.pgService.sql.begin(async (trx) => {
-      const [project] = await trx`
-        INSERT INTO projects (name, created_by)
-        VALUES (${dto.name}, ${userId})
-        RETURNING *
-      `;
-
-      // 생성자를 멤버십에 추가 (owner/role 컬럼이 없으니 단순 연결)
-      await trx`
-        INSERT INTO projects_users (project_id, user_id)
-        VALUES (${project.id}, ${userId})
-        ON CONFLICT DO NOTHING
-      `;
-
-      return project; // { id, name, created_by }
-    });
+  async findOneById(id: string): Promise<Project | null> {
+    const res = await this.pgService
+      .sql`SELECT * FROM projects WHERE id = ${id}`;
+    const row = res.at(0);
+    if (!row) return null;
+    return new Project(row as Project);
   }
 
-  // 사용자가 프로젝트에 속해있는지 검사
-  private async assertProjectMembership(userId: string, projectId: string) {
-    const rows = await this.pgService.sql`
-      SELECT 1
-      FROM projects_users
-      WHERE project_id = ${projectId} AND user_id = ${userId}
-      LIMIT 1
-    `;
-    if (rows.length === 0) {
-      throw new ForbiddenException('You do not have access to this project.');
+  async findManyByOrganizationId(organizationId: string): Promise<Project[]> {
+    const res = await this.pgService
+      .sql`SELECT * FROM projects WHERE organization_id = ${organizationId} ORDER BY id DESC`;
+    return res.map((r) => new Project(r as Project));
+  }
+
+  async createOne(
+    project: Omit<
+      Project,
+      | 'id'
+      | 'description'
+      | 'location'
+      | 'organizationId'
+      | 'managerId'
+      | 'currentStatus'
+    > & {
+      description?: string | undefined | null;
+      location?: string | undefined | null;
+      organizationId?: string | undefined | null;
+      managerId?: string | undefined | null;
+    },
+    firstStatusLog: Omit<ProjectStatusLog, 'id'>,
+  ): Promise<Project> {
+    const sql = this.pgService.sql;
+
+    const logRes = await sql`INSERT INTO project_status_logs ${sql(
+      firstStatusLog,
+      [
+        'status',
+        'changedBy',
+        ...(firstStatusLog.description ? ['description'] : []),
+      ] as any[],
+    )} RETURNING id`;
+    const firstStatusLogId = logRes.at(0)!.id as string;
+
+    const res = await sql`INSERT INTO projects ${sql(
+      {
+        ...project,
+        currentStatusLogId: firstStatusLogId,
+      },
+      [
+        'name',
+        ...(project.description ? ['description'] : []),
+        ...(project.location ? ['location'] : []),
+        'theme',
+        ...(project.organizationId ? ['organizationId'] : []),
+        ...(project.managerId ? ['managerId'] : []),
+        'currentStatusLogId',
+      ] as any[],
+    )}
+    RETURNING *`;
+    const row = res.at(0)!;
+    const createdProject = new Project({
+      ...row,
+      currentStatus: firstStatusLog.status,
+    } as Project);
+
+    await sql`UPDATE project_status_logs SET ${sql(
+      {
+        projectId: createdProject.id,
+      },
+      ['projectId'],
+    )} WHERE `;
+
+    return createdProject;
+  }
+
+  async updateOne(
+    project: Omit<
+      Project,
+      | 'name'
+      | 'description'
+      | 'location'
+      | 'theme'
+      | 'organizationId'
+      | 'managerId'
+      | 'currentStatus'
+    > & {
+      name?: string | undefined | null;
+      description?: string | undefined | null;
+      location?: string | undefined | null;
+      organizationId?: string | undefined | null;
+      managerId?: string | undefined | null;
+    },
+    statusLog?: Omit<ProjectStatusLog, 'id'> | null,
+  ): Promise<Project> {
+    const sql = this.pgService.sql;
+
+    let changedStatusLogId: string | null = null;
+    if (statusLog) {
+      const res = await sql`INSERT INTO project_status_logs SET ${sql(
+        statusLog,
+        [
+          'status',
+          'changedBy',
+          ...(statusLog.description ? ['description'] : []),
+        ] as any[],
+      )} RETURNING id`;
+      changedStatusLogId = res.at(0)!.id as string;
     }
+
+    const res = await sql`UPDATE projects SET ${sql(
+      {
+        ...project,
+        currentStatusLogId: changedStatusLogId,
+      },
+      [
+        ...(project.name ? ['name'] : []),
+        ...(project.description ? ['description'] : []),
+        ...(project.location ? ['location'] : []),
+        ...(project.organizationId ? ['organizationId'] : []),
+        ...(project.managerId ? ['managerId'] : []),
+        ...(statusLog ? ['currentStatusLogId'] : []),
+      ] as any[],
+    )} WHERE id = ${project.id}
+    RETURNING *`;
+
+    const row = res.at(0)!;
+    return new Project({
+      ...row,
+      ...(statusLog ? { currentStatus: statusLog.status } : {}),
+    } as Project);
   }
 
-  // 사용자가 가진 모든 프로젝트 (+옵션: 메타 포함)
-  async getProjects(userId: string, withMeta = false) {
-    if (withMeta) {
-      const rows = await this.pgService.sql`
-        SELECT 
-          p.*,
-          COALESCE(
-            JSON_AGG(pm ORDER BY pm.stage),
-            '[]'::json
-          ) AS metadata
-        FROM projects p
-        JOIN projects_users pu ON pu.project_id = p.id
-        LEFT JOIN project_metadata pm ON pm.project_id = p.id
-        WHERE pu.user_id = ${userId}
-        GROUP BY p.id
-        ORDER BY p.created_by NULLS LAST, p.name ASC
-      `;
-      return rows;
-    } else {
-      const rows = await this.pgService.sql`
-        SELECT p.*
-        FROM projects p
-        JOIN projects_users pu ON pu.project_id = p.id
-        WHERE pu.user_id = ${userId}
-        ORDER BY p.created_by NULLS LAST, p.name ASC
-      `;
-      return rows;
-    }
-  }
-
-  // 사용자가 가진 특정 프로젝트 (+옵션: 메타 포함)
-  async getProjectById(userId: string, projectId: string, withMeta = false) {
-    await this.assertProjectMembership(userId, projectId);
-
-    if (withMeta) {
-      const rows = await this.pgService.sql`
-        SELECT 
-          p.*,
-          COALESCE(
-            JSON_AGG(pm ORDER BY pm.stage),
-            '[]'::json
-          ) AS metadata
-        FROM projects p
-        LEFT JOIN project_metadata pm ON pm.project_id = p.id
-        WHERE p.id = ${projectId}
-        GROUP BY p.id
-        LIMIT 1
-      `;
-      if (rows.length === 0) throw new NotFoundException('Project not found');
-      return rows[0];
-    } else {
-      const rows = await this.pgService.sql`
-        SELECT * FROM projects WHERE id = ${projectId} LIMIT 1
-      `;
-      if (rows.length === 0) throw new NotFoundException('Project not found');
-      return rows[0];
-    }
-  }
-
-  // 사용자가 가진 특정 프로젝트 삭제
-  async deleteProject(userId: string, projectId: string) {
-    await this.assertProjectMembership(userId, projectId);
-
-    await this.pgService.sql.begin(async (trx) => {
-      // CASCADE로 area_groups, project_metadata, projects_users 등 연쇄 삭제
-      await trx`DELETE FROM projects WHERE id = ${projectId}`;
-    });
-
-    return { ok: true };
-  }
-
-  // 특정 프로젝트 메타데이터 Upsert (stage 단위)
-  async upsertProjectMeta(
-    userId: string,
-    projectId: string,
-    dto: UpsertMetaDto,
-  ) {
-    await this.assertProjectMembership(userId, projectId);
-
-    const { stage, progress = 0, input = null, output = null } = dto;
-
-    const rows = await this.pgService.sql`
-      INSERT INTO project_metadata (project_id, stage, progress, "input", "output")
-      VALUES (${projectId}, ${stage}, ${progress}, 
-              ${this.pgService.sql.json(input)}, 
-              ${this.pgService.sql.json(output)})
-      ON CONFLICT (project_id, stage)
-      DO UPDATE SET 
-        progress = EXCLUDED.progress,
-        "input"  = EXCLUDED."input",
-        "output" = EXCLUDED."output"
-      RETURNING *
-    `;
-    return rows[0];
-  }
-
-  // 사용자가 가진 특정 프로젝트 메타 (+옵션: 메타 포함)
-  async getProjectMetaById(userId: string, projectId: string) {
-    await this.assertProjectMembership(userId, projectId);
-
-    const rows = await this.pgService.sql`
-      SELECT 
-        pm.*
-      FROM project_metadata pm
-      WHERE pm.project_id = ${projectId}
-    `;
-    return rows[0];
+  async findStatusLogs(projectId: string): Promise<ProjectStatusLog[]> {
+    const res = await this.pgService
+      .sql`SELECT * FROM project_status_logs WHERE project_id = ${projectId} ORDER BY created_at DESC`;
+    return res.map((r: any) => new ProjectStatusLog(r));
   }
 }

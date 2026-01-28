@@ -17,7 +17,12 @@ export class Organization {
     website: string | null;
     status: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
   }) {
-    Object.assign(this, org);
+    this.id = org.id;
+    this.name = org.name;
+    this.type = org.type;
+    this.size = org.size;
+    this.website = org.website;
+    this.status = org.status;
   }
 }
 
@@ -56,9 +61,9 @@ export class OrganizationsService {
     const sql = this.pgService.sql;
 
     const res = await sql`INSERT INTO organizations ${sql(org, [
-      org.name,
-      org.type,
-      org.size,
+      'name',
+      'type',
+      'size',
       ...(org.website ? ['website'] : []),
       ...(org.status ? ['status'] : []),
     ] as any[])}

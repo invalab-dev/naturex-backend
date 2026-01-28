@@ -25,7 +25,16 @@ export class User {
     language: string;
     timezone: string;
   }) {
-    Object.assign(this, user);
+    this.id = user.id;
+    this.email = user.email;
+    this.password = user.password;
+    this.roles = user.roles;
+    this.name = user.name;
+    this.phoneNumber = user.phoneNumber;
+    this.bio = user.bio;
+    this.organizationId = user.organizationId;
+    this.language = user.language;
+    this.timezone = user.timezone;
   }
 }
 

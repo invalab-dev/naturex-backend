@@ -3,12 +3,12 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
-  Post,
+  Post, Put,
   Res,
 } from '@nestjs/common';
 import { type Response } from 'express';
 import { AuthService } from './auth.service.js';
-import { Public } from './guards/jwt-access.guard.js';
+import { Public, UserRole, UserRoles } from './guards/jwt-access.guard.js';
 import { OrganizationsService } from '../organizations/organizations.service.js';
 
 @Controller('auth')
@@ -55,7 +55,7 @@ export class AuthController {
     @Body() loginDTO: { email: string; password: string },
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { access_token } = await this.authService.login(
+    const { access_token, user } = await this.authService.login(
       loginDTO.email,
       loginDTO.password,
     );
@@ -64,8 +64,23 @@ export class AuthController {
       httpOnly: true,
       sameSite: 'lax', // 포트번호만 다르면 상관x; "none" 사용시 secure: true가 필수이다.
       secure: false,
+      path: '/',
     });
 
-    return { ok: true };
+    return user;
+  }
+
+  @UserRoles(UserRole.ADMIN, UserRole.USER)
+  @Put('logout')
+  logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('access_token', {
+      // cookie 설정 시와 같은 값
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: false,
+      path: '/',
+    });
+
+    res.json(null);
   }
 }

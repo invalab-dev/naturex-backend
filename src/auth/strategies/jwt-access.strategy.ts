@@ -26,7 +26,9 @@ export class JwtAccessStrategy extends PassportStrategy(Strategy, 'jwt') {
     }
     const { sub: userId } = payload as { sub: string };
     const user = await this.usersService.findOneById(userId);
-    if (!user) throw new UnauthorizedException('User does not exist');
+    if (!user) {
+      console.error('User does not exist');
+    }
     return user;
   }
 }

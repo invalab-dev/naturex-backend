@@ -41,16 +41,18 @@ export class AuthService {
   async login(
     email: string,
     password: string,
-  ): Promise<{ access_token: string }> {
+  ): Promise<{ access_token: string; user: Omit<User, 'password'> }> {
     const user = await this.usersService.findOneByEmail(email);
 
-    if (user?.password !== password) {
+    if (!user || user?.password !== password) {
       throw new UnauthorizedException();
     }
 
     const payload = { sub: user.id };
+    const { ['password']: _, ...insensitiveUser } = user;
     return {
       access_token: await this.jwtService.signAsync(payload),
+      user: insensitiveUser,
     };
   }
 }
