@@ -1,11 +1,16 @@
-import { Controller, NotFoundException, Param, Put } from '@nestjs/common';
-import { UsersService } from './users.service.js';
+import { Controller, NotFoundException, Param, Patch } from '@nestjs/common';
+import { User, UserRole, UsersService } from './users.service.js';
+
+export type ResWithUser = {
+  user: User;
+  [other: string]: any;
+};
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Put('make-admin/:id')
+  @Patch('make-admin/:id')
   async makeAdmin(@Param('id') id: string) {
     const user = await this.usersService.findOneById(id);
     if (!user) {
@@ -13,7 +18,7 @@ export class UsersController {
     }
     await this.usersService.updateOne({
       id: id,
-      roles: ['ADMIN', ...user.roles],
+      roles: [UserRole.ADMIN, ...user.roles],
     });
   }
 }

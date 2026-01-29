@@ -1,11 +1,17 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PostgresService } from '../postgres.service.js';
+import { undefinedToNull } from '../utils.js';
+
+export const enum UserRole {
+  ADMIN = 'ADMIN',
+  USER = 'USER',
+}
 
 export class User {
   public id!: string;
   public email!: string;
   public password!: string;
-  public roles!: ('ADMIN' | 'USER')[];
+  public roles!: UserRole[];
   public name!: string | null;
   public phoneNumber!: string | null;
   public bio!: string | null;
@@ -17,7 +23,7 @@ export class User {
     id: string;
     email: string;
     password: string;
-    roles: ('ADMIN' | 'USER')[];
+    roles: UserRole[];
     name: string | null;
     phoneNumber: string | null;
     bio: string | null;
@@ -64,18 +70,8 @@ export class UsersService {
   }
 
   async createOne(
-    user: Omit<
-      User,
-      | 'id'
-      | 'roles'
-      | 'name'
-      | 'phoneNumber'
-      | 'bio'
-      | 'organizationId'
-      | 'language'
-      | 'timezone'
-    > & {
-      roles?: ('ADMIN' | 'USER')[] | undefined | null;
+    user: Pick<User, 'email' | 'password'> & {
+      roles?: UserRole[] | undefined | null;
       name?: string | undefined | null;
       phoneNumber?: string | undefined | null;
       bio?: string | undefined | null;
@@ -84,19 +80,20 @@ export class UsersService {
       timezone?: string | undefined | null;
     },
   ): Promise<User> {
-    if (await this.findOneByEmail(user.email)) {
+    const definedUser = undefinedToNull(user);
+    if (await this.findOneByEmail(definedUser.email)) {
       throw new BadRequestException('User already exists');
     }
     const sql = this.pgService.sql;
 
-    const res = await sql`INSERT INTO users ${sql(user, [
-      ...(user.email ? ['email'] : []),
-      ...(user.password ? ['password'] : []),
+    const res = await sql`INSERT INTO users ${sql(definedUser, [
+      'email',
+      'password',
       ...(user.roles ? ['roles'] : []),
-      ...(user.name ? ['name'] : []),
-      ...(user.phoneNumber ? ['phoneNumber'] : []),
-      ...(user.bio ? ['bio'] : []),
-      ...(user.organizationId ? ['organizationId'] : []),
+      'name',
+      'phoneNumber',
+      'bio',
+      'organizationId',
       ...(user.language ? ['language'] : []),
       ...(user.timezone ? ['timezone'] : []),
     ] as any[])}
@@ -106,20 +103,10 @@ export class UsersService {
   }
 
   async updateOne(
-    user: Omit<
-      User,
-      | 'email'
-      | 'password'
-      | 'roles'
-      | 'name'
-      | 'phoneNumber'
-      | 'bio'
-      | 'organizationId'
-      | 'language'
-      | 'timezone'
-    > & {
+    user: Pick<User, 'id'> & {
       password?: string | undefined | null;
-      roles?: ('ADMIN' | 'USER')[] | undefined | null;
+      roles?: UserRole[] | undefined | null;
+      name?: string | undefined | null;
       phoneNumber?: string | undefined | null;
       bio?: string | undefined | null;
       organizationId?: string | undefined | null;
@@ -127,17 +114,19 @@ export class UsersService {
       timezone?: string | undefined | null;
     },
   ) {
+    const definedUser = undefinedToNull(user);
     const sql = this.pgService.sql;
 
-    const res = await sql`UPDATE users SET ${sql(user, [
+    const res = await sql`UPDATE users SET ${sql(definedUser, [
       ...(user.password ? ['password'] : []),
       ...(user.roles ? ['roles'] : []),
-      ...(user.phoneNumber ? ['phoneNumber'] : []),
-      ...(user.bio ? ['bio'] : []),
-      ...(user.organizationId ? ['organizationId'] : []),
+      'name',
+      'phoneNumber',
+      'bio',
+      'organizationId',
       ...(user.language ? ['language'] : []),
       ...(user.timezone ? ['timezone'] : []),
-    ] as any[])} WHERE id = ${user.id}
+    ] as any[])} WHERE id = ${definedUser.id}
     RETURNING *`;
     const row = res.at(0)!;
     return new User(row as User);

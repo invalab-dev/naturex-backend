@@ -3,13 +3,15 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
-  Post, Put,
+  Post,
+  Put,
   Res,
 } from '@nestjs/common';
 import { type Response } from 'express';
 import { AuthService } from './auth.service.js';
-import { Public, UserRole, UserRoles } from './guards/jwt-access.guard.js';
+import { Public, UserRoles } from './guards/jwt-access.guard.js';
 import { OrganizationsService } from '../organizations/organizations.service.js';
+import { UserRole } from '../users/users.service.js';
 
 @Controller('auth')
 export class AuthController {
@@ -21,11 +23,8 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.CREATED)
   @Post('signup')
-  async signUp(@Body() signUpDTO: Record<string, any>): Promise<any> {
-    const organizationName = signUpDTO.organizationName as
-      | string
-      | undefined
-      | null;
+  async signUp(@Body() body: Record<string, any>): Promise<any> {
+    const organizationName = body.organizationName as string | undefined | null;
     let organizationId: string | undefined = undefined;
     if (organizationName) {
       organizationId = (
@@ -34,15 +33,15 @@ export class AuthController {
     }
 
     const obj = {
-      email: signUpDTO.email as string,
-      password: signUpDTO.password as string,
-      roles: signUpDTO.roles as ('ADMIN' | 'USER')[] | undefined | null,
-      name: signUpDTO.name as string | undefined | null,
-      phoneNumber: signUpDTO.phoneNumber as string | undefined | null,
-      bio: signUpDTO.bio as string | undefined | null,
+      email: body.email as string,
+      password: body.password as string,
+      roles: body.roles as UserRole[] | undefined | null,
+      name: body.name as string | undefined | null,
+      phoneNumber: body.phoneNumber as string | undefined | null,
+      bio: body.bio as string | undefined | null,
       organizationId: organizationId,
-      language: signUpDTO.language as string | undefined | null,
-      timezone: signUpDTO.timezone as string | undefined | null,
+      language: body.language as string | undefined | null,
+      timezone: body.timezone as string | undefined | null,
     };
 
     return this.authService.signUp(obj);

@@ -1,5 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { PostgresService } from '../postgres.service.js';
+import { undefinedToNull } from '../utils.js';
 
 export class Organization {
   public id!: string;
@@ -49,27 +54,62 @@ export class OrganizationsService {
   }
 
   async createOne(
-    org: Omit<Organization, 'id' | 'website' | 'status'> & {
+    org: Pick<Organization, 'name' | 'type' | 'size'> & {
       website?: string | undefined | null;
       status?: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED' | undefined | null;
     },
   ): Promise<Organization> {
-    if (await this.findOneByName(org.name)) {
+    const definedOrg = undefinedToNull(org);
+
+    if (await this.findOneByName(definedOrg.name)) {
       throw new BadRequestException('Organization already exists');
     }
 
     const sql = this.pgService.sql;
 
-    const res = await sql`INSERT INTO organizations ${sql(org, [
+    const res = await sql`INSERT INTO organizations ${sql(definedOrg, [
       'name',
       'type',
       'size',
-      ...(org.website ? ['website'] : []),
+      'website',
       ...(org.status ? ['status'] : []),
     ] as any[])}
     RETURNING *`;
 
     const row = res.at(0)!;
     return new Organization(row as Organization);
+  }
+
+  async updateOne(
+    org: Pick<Organization, 'id'> & {
+      name?: string | undefined | null;
+      type?: Organization['type'] | undefined | null;
+      size?: Organization['size'] | undefined | null;
+      website?: string | undefined | null;
+      status?: Organization['status'] | undefined | null;
+    },
+  ): Promise<Organization> {
+    const definedOrg = undefinedToNull(org);
+    const sql = this.pgService.sql;
+
+    if (definedOrg.name && (await this.findOneByName(definedOrg.name))) {
+      throw new ForbiddenException('same name already exists');
+    }
+
+    const res = await sql`UPDATE organizations SET ${sql(definedOrg, [
+      ...(org.name ? ['name'] : []),
+      ...(org.type ? ['type'] : []),
+      ...(org.size ? ['size'] : []),
+      'website',
+      ...(org.status ? ['status'] : []),
+    ] as any[])} WHERE id = ${org.id}
+  RETURNING *`;
+
+    const row = res.at(0)!;
+    return new Organization(row as Organization);
+  }
+
+  async deleteOne(id: string): Promise<void> {
+    await this.pgService.sql`DELETE FROM organizations WHERE id = ${id}`;
   }
 }

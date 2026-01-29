@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PostgresService } from '../postgres.service.js';
+import { undefinedToNull } from '../utils.js';
 
 export type ProjectTheme = '운영비 절감' | '자산 가치 향상' | '생물 다양성';
 
@@ -79,15 +80,7 @@ export class ProjectsService {
   }
 
   async createOne(
-    project: Omit<
-      Project,
-      | 'id'
-      | 'description'
-      | 'location'
-      | 'organizationId'
-      | 'managerId'
-      | 'currentStatus'
-    > & {
+    project: Pick<Project, 'name' | 'theme'> & {
       description?: string | undefined | null;
       location?: string | undefined | null;
       organizationId?: string | undefined | null;
@@ -95,6 +88,7 @@ export class ProjectsService {
     },
     firstStatusLog: Omit<ProjectStatusLog, 'id'>,
   ): Promise<Project> {
+    const definedProject = undefinedToNull(project);
     const sql = this.pgService.sql;
 
     const logRes = await sql`INSERT INTO project_status_logs ${sql(
@@ -109,16 +103,16 @@ export class ProjectsService {
 
     const res = await sql`INSERT INTO projects ${sql(
       {
-        ...project,
+        ...definedProject,
         currentStatusLogId: firstStatusLogId,
       },
       [
         'name',
-        ...(project.description ? ['description'] : []),
-        ...(project.location ? ['location'] : []),
+        'description',
+        'location',
         'theme',
-        ...(project.organizationId ? ['organizationId'] : []),
-        ...(project.managerId ? ['managerId'] : []),
+        'organizationId',
+        'managerId',
         'currentStatusLogId',
       ] as any[],
     )}
@@ -140,16 +134,7 @@ export class ProjectsService {
   }
 
   async updateOne(
-    project: Omit<
-      Project,
-      | 'name'
-      | 'description'
-      | 'location'
-      | 'theme'
-      | 'organizationId'
-      | 'managerId'
-      | 'currentStatus'
-    > & {
+    project: Pick<Project, 'id'> & {
       name?: string | undefined | null;
       description?: string | undefined | null;
       location?: string | undefined | null;
@@ -158,6 +143,7 @@ export class ProjectsService {
     },
     statusLog?: Omit<ProjectStatusLog, 'id'> | null,
   ): Promise<Project> {
+    const definedProject = undefinedToNull(project);
     const sql = this.pgService.sql;
 
     let changedStatusLogId: string | null = null;
@@ -175,18 +161,18 @@ export class ProjectsService {
 
     const res = await sql`UPDATE projects SET ${sql(
       {
-        ...project,
+        ...definedProject,
         currentStatusLogId: changedStatusLogId,
       },
       [
-        ...(project.name ? ['name'] : []),
-        ...(project.description ? ['description'] : []),
-        ...(project.location ? ['location'] : []),
-        ...(project.organizationId ? ['organizationId'] : []),
-        ...(project.managerId ? ['managerId'] : []),
+        'name',
+        'description',
+        'location',
+        'organizationId',
+        'managerId',
         ...(statusLog ? ['currentStatusLogId'] : []),
       ] as any[],
-    )} WHERE id = ${project.id}
+    )} WHERE id = ${definedProject.id}
     RETURNING *`;
 
     const row = res.at(0)!;
@@ -200,5 +186,10 @@ export class ProjectsService {
     const res = await this.pgService
       .sql`SELECT * FROM project_status_logs WHERE project_id = ${projectId} ORDER BY created_at DESC`;
     return res.map((r: any) => new ProjectStatusLog(r));
+  }
+
+  async deleteOne(projectId: string): Promise<void> {
+    const sql = this.pgService.sql;
+    await sql`DELETE FROM projects WHERE project_id = ${projectId}`;
   }
 }

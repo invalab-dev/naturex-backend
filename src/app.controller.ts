@@ -1,6 +1,7 @@
 import { Controller, Get, Req } from '@nestjs/common';
 import { AppService } from './app.service.js';
-import { Public, UserRole, UserRoles } from './auth/guards/jwt-access.guard.js';
+import { Public, UserRoles } from './auth/guards/jwt-access.guard.js';
+import { UserRole } from './users/users.service.js';
 
 @Controller()
 export class AppController {

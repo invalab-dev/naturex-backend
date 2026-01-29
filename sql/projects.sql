@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS project_status_logs (
 
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
-    CONSTRAINT fk_project_status_logs_project FOREIGN KEY(project_id) REFERENCES projects(id),
+    CONSTRAINT fk_project_status_logs_project FOREIGN KEY(project_id) REFERENCES projects(id) ON DELETE CASCADE,
     CONSTRAINT fk_project_status_logs_changer FOREIGN KEY(changed_by) REFERENCES users(id)
 );
 

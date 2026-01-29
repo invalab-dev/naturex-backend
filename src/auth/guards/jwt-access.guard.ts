@@ -9,12 +9,9 @@ import { AuthGuard } from '@nestjs/passport';
 import { Reflector } from '@nestjs/core';
 import { isBoolean } from 'class-validator';
 import { firstValueFrom, Observable } from 'rxjs';
+import { UserRole } from '../../users/users.service.js';
 
 export const Public = () => SetMetadata('isPublic', true);
-export const enum UserRole {
-  ADMIN = 'ADMIN',
-  USER = 'USER',
-}
 export const UserRoles = (...roles: UserRole[]) =>
   SetMetadata('userRoles', roles);
 
@@ -68,12 +65,12 @@ export class JwtAccessGuard extends AuthGuard('jwt') {
     return true;
   }
 
-  handleRequest(err: any, user: any, info: any) {
-    // strategy 호출 후, 한번 호출됨.
-    if (err || !user) {
-      console.log('JWT error/info =>', err, info);
-      throw err || new UnauthorizedException();
-    }
-    return user;
-  }
+  // handleRequest(err: any, user: any, info: any) {
+  //   // strategy 호출 후, 한번 호출됨.
+  //   if (err || !user) {
+  //     console.log('JWT error/info =>', err, info);
+  //     throw err || new UnauthorizedException();
+  //   }
+  //   return user;
+  // }
 }
