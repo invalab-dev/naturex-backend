@@ -8,5 +8,5 @@ CREATE TABLE IF NOT EXISTS consents (
     created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
-    CONSTRAINT fk_consent_user FOREIGN KEY(user_id) REFERENCES users(id)
+    CONSTRAINT fk_consent_user FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );

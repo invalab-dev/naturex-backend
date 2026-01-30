@@ -9,7 +9,7 @@ import { Request } from 'express';
 import { isObject } from 'class-validator';
 import { timingSafeEqual } from 'crypto';
 import { AuthSessionsService } from '../auth-sessions.service.js';
-import { hashToken2Hex } from '../../utils.js';
+import { hashTokenToHex } from '../../utils.js';
 
 type RefreshPayload = {
   sub: string;
@@ -52,7 +52,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
     if (!raw || typeof raw !== 'string') {
       throw new UnauthorizedException();
     }
-    const hashHex = hashToken2Hex(raw);
+    const hashHex = hashTokenToHex(raw);
     const session = await this.sessionsService.findActiveByIdAndUserId(
       String(sid),
       String(sub),

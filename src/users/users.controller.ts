@@ -1,10 +1,10 @@
 import { Controller, NotFoundException, Param, Patch } from '@nestjs/common';
 import { User, UserRole, UsersService } from './users.service.js';
+import { Request } from 'express';
 
-export type ResWithUser = {
+export type RequestWithUser = {
   user: User;
-  [other: string]: any;
-};
+} & Request;
 
 @Controller('users')
 export class UsersController {

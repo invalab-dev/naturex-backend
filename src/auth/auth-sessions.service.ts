@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PostgresService } from '../postgres.service.js';
-import { undefinedToNull } from '../utils.js';
 
 export class AuthSession {
   id!: string;
@@ -52,21 +51,22 @@ export class AuthSessionsService {
       ip?: string | undefined | null;
     },
   ): Promise<AuthSession> {
-    const definedSession = undefinedToNull(session);
+    const sanitizedSession = {
+      ...session,
+      expiresAt: session.expiresAt.toISOString(),
+      userAgent: session.userAgent ?? null,
+      ip: session.ip ?? null,
+    };
 
     const sql = this.pgService.sql;
     const res = await sql`
-      INSERT INTO auth_sessions ${sql(definedSession, [
+      INSERT INTO auth_sessions ${sql(sanitizedSession, [
         'id',
         'userId',
         'refreshTokenHash',
         'expiresAt',
-        ...[
-          definedSession.userAgent
-            ? ['userAgent', definedSession.userAgent]
-            : [],
-        ],
-        ...[definedSession.ip ? ['ip', definedSession.ip] : []],
+        'userAgent',
+        'ip',
       ] as any[])}
       RETURNING *
     `;
@@ -103,14 +103,19 @@ export class AuthSessionsService {
   async rotateRefreshToken(
     session: Pick<AuthSession, 'id' | 'refreshTokenHash' | 'expiresAt'>,
   ): Promise<AuthSession | null> {
+    const sanitizedSession = {
+      ...session,
+      expressionAt: session.expiresAt.toISOString(),
+    };
+
     const sql = this.pgService.sql;
     const res = await sql`
       UPDATE auth_sessions
-      SET refresh_token_hash = ${session.refreshTokenHash},
-          expires_at = ${session.expiresAt},
+      SET refresh_token_hash = ${sanitizedSession.refreshTokenHash},
+          expires_at = ${sanitizedSession.expiresAt},
           last_used_at = NOW(),
           updated_at = NOW()
-      WHERE id = ${session.id}
+      WHERE id = ${sanitizedSession.id}
         AND revoked_at IS NULL
       RETURNING *
     `;

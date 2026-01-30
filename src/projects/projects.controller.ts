@@ -18,7 +18,7 @@ import {
 } from './projects.service.js';
 import { UserRole } from '../users/users.service.js';
 import { UserRoles } from '../auth/guards/jwt-access.guard.js';
-import type { ResWithUser } from '../users/users.controller.js';
+import type { RequestWithUser } from '../users/users.controller.js';
 
 @Controller('projects')
 export class ProjectsController {
@@ -47,7 +47,7 @@ export class ProjectsController {
   @UserRoles(UserRole.ADMIN)
   @Post()
   async createProject(
-    @Req() req: ResWithUser,
+    @Req() req: RequestWithUser,
     @Body() body: Record<string, any>,
   ) {
     const obj = {
@@ -70,7 +70,7 @@ export class ProjectsController {
   @UserRoles(UserRole.ADMIN)
   @Patch()
   async updateProject(
-    @Req() req: ResWithUser,
+    @Req() req: RequestWithUser,
     @Body() body: Record<string, any>,
   ): Promise<Project> {
     const existed = await this.projectsService.findOneById(body.id as string);

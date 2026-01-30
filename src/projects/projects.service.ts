@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PostgresService } from '../postgres.service.js';
-import { undefinedToNull } from '../utils.js';
 
 export type ProjectTheme = '운영비 절감' | '자산 가치 향상' | '생물 다양성';
 
@@ -88,7 +87,13 @@ export class ProjectsService {
     },
     firstStatusLog: Omit<ProjectStatusLog, 'id'>,
   ): Promise<Project> {
-    const definedProject = undefinedToNull(project);
+    const sanitizedProject = {
+      ...project,
+      description: project.description ?? null,
+      location: project.location ?? null,
+      organizationId: project.organizationId ?? null,
+      managerId: project.managerId ?? null,
+    };
     const sql = this.pgService.sql;
 
     const logRes = await sql`INSERT INTO project_status_logs ${sql(
@@ -103,7 +108,7 @@ export class ProjectsService {
 
     const res = await sql`INSERT INTO projects ${sql(
       {
-        ...definedProject,
+        ...sanitizedProject,
         currentStatusLogId: firstStatusLogId,
       },
       [
@@ -143,7 +148,14 @@ export class ProjectsService {
     },
     statusLog?: Omit<ProjectStatusLog, 'id'> | null,
   ): Promise<Project> {
-    const definedProject = undefinedToNull(project);
+    const sanitizedProject = {
+      ...project,
+      name: project.name ?? null,
+      description: project.description ?? null,
+      location: project.location ?? null,
+      organizationId: project.organizationId ?? null,
+      managerId: project.managerId ?? null,
+    };
     const sql = this.pgService.sql;
 
     let changedStatusLogId: string | null = null;
@@ -161,7 +173,7 @@ export class ProjectsService {
 
     const res = await sql`UPDATE projects SET ${sql(
       {
-        ...definedProject,
+        ...sanitizedProject,
         currentStatusLogId: changedStatusLogId,
       },
       [
@@ -172,7 +184,7 @@ export class ProjectsService {
         'managerId',
         ...(statusLog ? ['currentStatusLogId'] : []),
       ] as any[],
-    )} WHERE id = ${definedProject.id}
+    )} WHERE id = ${sanitizedProject.id}
     RETURNING *`;
 
     const row = res.at(0)!;

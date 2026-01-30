@@ -77,7 +77,7 @@ export class AuthController {
   @Post('login')
   async login(
     @Body() loginDTO: { email: string; password: string },
-    @Res({ passthrough: false }) res: Response,
+    @Res({ passthrough: true }) res: Response,
     @Req() req: Request,
   ) {
     const { access_token, refresh_token, user } = await this.authService.login(
@@ -111,7 +111,7 @@ export class AuthController {
   @Post('refresh')
   async refresh(
     @Req() req: Request,
-    @Res({ passthrough: false }) res: Response,
+    @Res({ passthrough: true }) res: Response,
   ) {
     const { userId, sessionId } = req.user as {
       userId: string;
@@ -144,10 +144,7 @@ export class AuthController {
 
   @UserRoles(UserRole.ADMIN, UserRole.USER)
   @Put('logout')
-  async logout(
-    @Req() req: Request,
-    @Res({ passthrough: false }) res: Response,
-  ) {
+  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const sessionId = (
       req.user as { sessionId?: string | undefined } | undefined
     )?.sessionId;

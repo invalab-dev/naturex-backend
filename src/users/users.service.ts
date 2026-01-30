@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PostgresService } from '../postgres.service.js';
-import { undefinedToNull } from '../utils.js';
 
 export const enum UserRole {
   ADMIN = 'ADMIN',
@@ -80,13 +79,22 @@ export class UsersService {
       timezone?: string | undefined | null;
     },
   ): Promise<User> {
-    const definedUser = undefinedToNull(user);
-    if (await this.findOneByEmail(definedUser.email)) {
+    const sanitizedUser = {
+      ...user,
+      roles: user.roles ?? null,
+      name: user.name ?? null,
+      phoneNumber: user.phoneNumber ?? null,
+      bio: user.bio ?? null,
+      organizationId: user.organizationId ?? null,
+      language: user.language ?? null,
+      timezone: user.timezone ?? null,
+    };
+    if (await this.findOneByEmail(sanitizedUser.email)) {
       throw new BadRequestException('User already exists');
     }
     const sql = this.pgService.sql;
 
-    const res = await sql`INSERT INTO users ${sql(definedUser, [
+    const res = await sql`INSERT INTO users ${sql(sanitizedUser, [
       'email',
       'password',
       ...(user.roles ? ['roles'] : []),
@@ -114,10 +122,20 @@ export class UsersService {
       timezone?: string | undefined | null;
     },
   ) {
-    const definedUser = undefinedToNull(user);
+    const sanitizedUser = {
+      ...user,
+      password: user.password ?? null,
+      roles: user.roles ?? null,
+      name: user.name ?? null,
+      phoneNumber: user.phoneNumber ?? null,
+      bio: user.bio ?? null,
+      organizationId: user.organizationId ?? null,
+      language: user.language ?? null,
+      timezone: user.timezone ?? null,
+    };
     const sql = this.pgService.sql;
 
-    const res = await sql`UPDATE users SET ${sql(definedUser, [
+    const res = await sql`UPDATE users SET ${sql(sanitizedUser, [
       ...(user.password ? ['password'] : []),
       ...(user.roles ? ['roles'] : []),
       'name',
@@ -126,7 +144,7 @@ export class UsersService {
       'organizationId',
       ...(user.language ? ['language'] : []),
       ...(user.timezone ? ['timezone'] : []),
-    ] as any[])} WHERE id = ${definedUser.id}
+    ] as any[])} WHERE id = ${sanitizedUser.id}
     RETURNING *`;
     const row = res.at(0)!;
     return new User(row as User);

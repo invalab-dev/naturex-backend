@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { User, UserRole, UsersService } from '../users/users.service.js';
 import { AuthSessionsService } from './auth-sessions.service.js';
 import { randomUUID } from 'crypto';
-import { hashToken2Hex } from '../utils.js';
+import { hashTokenToHex } from '../utils.js';
 import * as process from 'node:process';
 
 @Injectable()
@@ -59,7 +59,7 @@ export class AuthService {
 
     const sessionId = randomUUID();
     const refreshToken = await this.signRefreshToken(user, sessionId);
-    const refreshHash = hashToken2Hex(refreshToken);
+    const refreshHash = hashTokenToHex(refreshToken);
 
     await this.authSessionsService.createOne({
       id: sessionId,
@@ -99,7 +99,7 @@ export class AuthService {
 
     const sessionId = randomUUID();
     const refreshToken = await this.signRefreshToken(user, sessionId);
-    const refreshHash = hashToken2Hex(refreshToken);
+    const refreshHash = hashTokenToHex(refreshToken);
 
     await this.authSessionsService.createOne({
       id: sessionId,
@@ -111,9 +111,7 @@ export class AuthService {
       userAgent: meta?.userAgent ?? null,
       ip: meta?.ip ?? null,
     });
-
     const accessToken = await this.signAccessToken(user, sessionId);
-
     const { password: _, ...insensitiveUser } = user;
     return {
       access_token: accessToken,
@@ -136,7 +134,7 @@ export class AuthService {
     if (!session) throw new UnauthorizedException();
 
     const newRefreshToken = await this.signRefreshToken(user, sessionId);
-    const newRefreshHash = hashToken2Hex(newRefreshToken);
+    const newRefreshHash = hashTokenToHex(newRefreshToken);
 
     const rotated = await this.authSessionsService.rotateRefreshToken({
       id: sessionId,

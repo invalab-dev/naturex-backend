@@ -4,7 +4,6 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { PostgresService } from '../postgres.service.js';
-import { undefinedToNull } from '../utils.js';
 
 export class Organization {
   public id!: string;
@@ -59,15 +58,19 @@ export class OrganizationsService {
       status?: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED' | undefined | null;
     },
   ): Promise<Organization> {
-    const definedOrg = undefinedToNull(org);
+    const sanitizedOrg = {
+      ...org,
+      website: org.website ?? null,
+      status: org.status ?? null,
+    };
 
-    if (await this.findOneByName(definedOrg.name)) {
+    if (await this.findOneByName(sanitizedOrg.name)) {
       throw new BadRequestException('Organization already exists');
     }
 
     const sql = this.pgService.sql;
 
-    const res = await sql`INSERT INTO organizations ${sql(definedOrg, [
+    const res = await sql`INSERT INTO organizations ${sql(sanitizedOrg, [
       'name',
       'type',
       'size',
@@ -89,14 +92,21 @@ export class OrganizationsService {
       status?: Organization['status'] | undefined | null;
     },
   ): Promise<Organization> {
-    const definedOrg = undefinedToNull(org);
+    const sanitizedOrg = {
+      ...org,
+      name: org.name ?? null,
+      type: org.type ?? null,
+      size: org.size ?? null,
+      website: org.website ?? null,
+      status: org.status ?? null,
+    };
     const sql = this.pgService.sql;
 
-    if (definedOrg.name && (await this.findOneByName(definedOrg.name))) {
+    if (sanitizedOrg.name && (await this.findOneByName(sanitizedOrg.name))) {
       throw new ForbiddenException('same name already exists');
     }
 
-    const res = await sql`UPDATE organizations SET ${sql(definedOrg, [
+    const res = await sql`UPDATE organizations SET ${sql(sanitizedOrg, [
       ...(org.name ? ['name'] : []),
       ...(org.type ? ['type'] : []),
       ...(org.size ? ['size'] : []),
