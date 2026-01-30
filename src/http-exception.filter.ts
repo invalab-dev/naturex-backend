@@ -14,6 +14,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const originalUrl = request.originalUrl;
     const routePath = request.route?.path;
 
+    console.error(`[trace] ${exception.stack}`);
     console.error(
       `[HTTP EXCEPTION] ${method} ${originalUrl}` +
         (routePath ? ` (route: ${routePath})` : ''),

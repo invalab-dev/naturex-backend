@@ -129,7 +129,10 @@ export class AuthService {
     const user = await this.usersService.findOneById(userId);
     if (!user) throw new UnauthorizedException();
 
-    const session = await this.authSessionsService.findActiveByIdAndUserId(sessionId, userId);
+    const session = await this.authSessionsService.findActiveByIdAndUserId(
+      sessionId,
+      userId,
+    );
     if (!session) throw new UnauthorizedException();
 
     const newRefreshToken = await this.signRefreshToken(user, sessionId);
