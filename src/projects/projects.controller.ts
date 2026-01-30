@@ -21,21 +21,22 @@ import { UserRoles } from '../auth/guards/jwt-access.guard.js';
 import type { ResWithUser } from '../users/users.controller.js';
 
 @Controller('projects')
-export class ProjectController {
+export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
-  @UserRoles(UserRole.USER)
-  @Get('organization/belonging')
-  async getProjectsOfBelongingOrganization(@Req() req: ResWithUser) {
-    const user = req.user;
+  // @UserRoles(UserRole.USER)
+  // @Get('organization/belonging')
+  // async getProjectsOfBelongingOrganization(@Req() req: ResWithUser) {
+  //   const user = req.user;
+  //
+  //   if (!user.organizationId) {
+  //     return [];
+  //   }
+  //
+  //   return this.projectsService.findManyByOrganizationId(user.organizationId);
+  // }
 
-    if (!user.organizationId) {
-      return [];
-    }
-
-    return this.projectsService.findManyByOrganizationId(user.organizationId);
-  }
-
+  @UserRoles(UserRole.ADMIN, UserRole.USER)
   @Get('organization/:organizationId')
   async getProjectsByOrganization(
     @Param('organizationId') organizationId: string,
@@ -43,6 +44,7 @@ export class ProjectController {
     return this.projectsService.findManyByOrganizationId(organizationId);
   }
 
+  @UserRoles(UserRole.ADMIN)
   @Post()
   async createProject(
     @Req() req: ResWithUser,
@@ -65,6 +67,7 @@ export class ProjectController {
     return await this.projectsService.createOne(obj, statusLog);
   }
 
+  @UserRoles(UserRole.ADMIN)
   @Patch()
   async updateProject(
     @Req() req: ResWithUser,
@@ -91,6 +94,7 @@ export class ProjectController {
     return await this.projectsService.updateOne(obj, statusLog);
   }
 
+  @UserRoles(UserRole.ADMIN)
   @Delete()
   async deleteProject(@Body() body: Record<string, any>) {
     await this.projectsService.deleteOne(body.id as string);

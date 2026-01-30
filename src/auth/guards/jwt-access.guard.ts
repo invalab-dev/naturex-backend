@@ -3,7 +3,6 @@ import {
   ForbiddenException,
   Injectable,
   SetMetadata,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Reflector } from '@nestjs/core';
@@ -49,7 +48,7 @@ export class JwtAccessGuard extends AuthGuard('jwt') {
     }
 
     const request = ctx.switchToHttp().getRequest();
-    const userRoles: UserRole | undefined = request.user.roles;
+    const userRoles: UserRole[] | undefined = request.user.roles;
 
     if (!userRoles || userRoles!.length === 0) {
       throw new ForbiddenException('역할 정보가 없습니다.');

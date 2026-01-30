@@ -1,3 +1,5 @@
+import { createHash } from 'crypto';
+
 export type UndefinedToNull<T> = T extends object
   ? { [K in keyof T]-?: UndefinedToNull<T[K]> }
   : T extends undefined
@@ -16,4 +18,8 @@ export function undefinedToNull<T>(obj: T): UndefinedToNull<T> {
   }
 
   return result as UndefinedToNull<T>;
+}
+
+export function hashToken2Hex(token: string) {
+  return createHash('sha256').update(token).digest('hex');
 }

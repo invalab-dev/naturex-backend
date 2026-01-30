@@ -8,21 +8,21 @@ import { JwtAccessStrategy } from './strategies/jwt-access.strategy.js';
 import { JwtAccessGuard } from './guards/jwt-access.guard.js';
 import { AuthController } from './auth.controller.js';
 import { OrganizationsModule } from '../organizations/organizations.module.js';
+import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy.js';
+import { AuthSessionsService } from './auth-sessions.service.js';
 
 @Module({
   imports: [
     PassportModule,
     UsersModule,
     OrganizationsModule,
-    JwtModule.register({
-      global: true,
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '1d' },
-    }),
+    JwtModule.register({}),
   ],
   providers: [
     AuthService,
+    AuthSessionsService,
     JwtAccessStrategy,
+    JwtRefreshStrategy,
     {
       provide: APP_GUARD,
       useClass: JwtAccessGuard,

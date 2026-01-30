@@ -10,11 +10,14 @@ import {
 } from '@nestjs/common';
 
 import { OrganizationsService, Organization } from './organizations.service.js';
+import { UserRoles } from '../auth/guards/jwt-access.guard.js';
+import { UserRole } from '../users/users.service.js';
 
 @Controller('organizations')
 export class OrganizationsController {
   constructor(private readonly organizationsService: OrganizationsService) {}
 
+  @UserRoles(UserRole.ADMIN, UserRole.USER)
   @Get(':organizationId')
   async getOrganizationById(
     @Param('organizationId') organizationId: string,
@@ -24,6 +27,7 @@ export class OrganizationsController {
     return org;
   }
 
+  @UserRoles(UserRole.ADMIN)
   @Post()
   async createOrganization(
     @Body() body: Record<string, any>,
@@ -39,6 +43,7 @@ export class OrganizationsController {
     return await this.organizationsService.createOne(obj);
   }
 
+  @UserRoles(UserRole.ADMIN)
   @Patch()
   async updateOrganization(
     @Body() body: Record<string, any>,
@@ -60,6 +65,7 @@ export class OrganizationsController {
     return await this.organizationsService.updateOne(obj);
   }
 
+  @UserRoles(UserRole.ADMIN)
   @Delete()
   async deleteOrganization(@Body() body: Record<string, any>) {
     await this.organizationsService.deleteOne(body.id as string);

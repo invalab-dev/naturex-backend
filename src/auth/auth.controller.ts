@@ -5,13 +5,16 @@ import {
   HttpStatus,
   Post,
   Put,
+  Req,
   Res,
+  UseGuards,
 } from '@nestjs/common';
-import { type Response } from 'express';
+import type { Request, Response } from 'express';
 import { AuthService } from './auth.service.js';
 import { Public, UserRoles } from './guards/jwt-access.guard.js';
 import { OrganizationsService } from '../organizations/organizations.service.js';
 import { UserRole } from '../users/users.service.js';
+import { JwtRefreshGuard } from './guards/jwt-refresh.guard.js';
 
 @Controller('auth')
 export class AuthController {
@@ -23,7 +26,10 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.CREATED)
   @Post('signup')
-  async signUp(@Body() body: Record<string, any>): Promise<any> {
+  async signUp(
+    @Body() body: Record<string, any>,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<any> {
     const organizationName = body.organizationName as string | undefined | null;
     let organizationId: string | undefined = undefined;
     if (organizationName) {
@@ -44,7 +50,26 @@ export class AuthController {
       timezone: body.timezone as string | undefined | null,
     };
 
-    return this.authService.signUp(obj);
+    const { access_token, refresh_token, user } =
+      await this.authService.signUp(obj);
+
+    res.cookie('access_token', access_token, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: false,
+      path: '/',
+      maxAge: Number(process.env.JWT_ACCESS_EXPIRATION),
+    });
+
+    res.cookie('refresh_token', refresh_token, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: false,
+      path: '/auth/refresh',
+      maxAge: Number(process.env.JWT_ACCESS_EXPIRATION),
+    });
+
+    return user;
   }
 
   @Public()
@@ -52,34 +77,99 @@ export class AuthController {
   @Post('login')
   async login(
     @Body() loginDTO: { email: string; password: string },
-    @Res({ passthrough: true }) res: Response,
+    @Res({ passthrough: false }) res: Response,
+    @Req() req: Request,
   ) {
-    const { access_token, user } = await this.authService.login(
+    const { access_token, refresh_token, user } = await this.authService.login(
       loginDTO.email,
       loginDTO.password,
+      { userAgent: req.get('user-agent'), ip: req.ip },
     );
 
     res.cookie('access_token', access_token, {
       httpOnly: true,
-      sameSite: 'lax', // 포트번호만 다르면 상관x; "none" 사용시 secure: true가 필수이다.
+      sameSite: 'lax',
       secure: false,
       path: '/',
+      maxAge: Number(process.env.JWT_ACCESS_EXPIRATION),
+    });
+
+    res.cookie('refresh_token', refresh_token, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: false,
+      path: '/auth/refresh',
+      maxAge: Number(process.env.JWT_ACCESS_EXPIRATION),
     });
 
     return user;
   }
 
+  @Public()
+  @UseGuards(JwtRefreshGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post('refresh')
+  async refresh(
+    @Req() req: Request,
+    @Res({ passthrough: false }) res: Response,
+  ) {
+    const { userId, sessionId } = req.user as {
+      userId: string;
+      sessionId: string;
+    };
+
+    const { access_token, refresh_token } = await this.authService.refresh(
+      userId,
+      sessionId,
+    );
+
+    res.cookie('access_token', access_token, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: false,
+      path: '/',
+      maxAge: Number(process.env.JWT_ACCESS_EXPIRATION),
+    });
+
+    res.cookie('refresh_token', refresh_token, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: false,
+      path: '/auth/refresh',
+      maxAge: Number(process.env.JWT_ACCESS_EXPIRATION),
+    });
+
+    return null;
+  }
+
   @UserRoles(UserRole.ADMIN, UserRole.USER)
   @Put('logout')
-  logout(@Res({ passthrough: true }) res: Response) {
+  async logout(
+    @Req() req: Request,
+    @Res({ passthrough: false }) res: Response,
+  ) {
+    const sessionId = (
+      req.user as { sessionId?: string | undefined } | undefined
+    )?.sessionId;
+
+    if (sessionId) {
+      await this.authService.logout(sessionId);
+    }
+
     res.clearCookie('access_token', {
-      // cookie 설정 시와 같은 값
       httpOnly: true,
       sameSite: 'lax',
       secure: false,
       path: '/',
     });
 
-    res.json(null);
+    res.clearCookie('refresh_token', {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: false,
+      path: '/auth/refresh',
+    });
+
+    return null;
   }
 }
