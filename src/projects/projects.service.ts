@@ -133,7 +133,7 @@ export class ProjectsService {
         projectId: createdProject.id,
       },
       ['projectId'],
-    )} WHERE `;
+    )} WHERE id = ${firstStatusLogId}`;
 
     return createdProject;
   }
@@ -160,9 +160,13 @@ export class ProjectsService {
 
     let changedStatusLogId: string | null = null;
     if (statusLog) {
-      const res = await sql`INSERT INTO project_status_logs SET ${sql(
-        statusLog,
+      const res = await sql`INSERT INTO project_status_logs ${sql(
+        {
+          ...statusLog,
+          projectId: sanitizedProject.id,
+        },
         [
+          'projectId',
           'status',
           'changedBy',
           ...(statusLog.description ? ['description'] : []),
@@ -202,6 +206,6 @@ export class ProjectsService {
 
   async deleteOne(projectId: string): Promise<void> {
     const sql = this.pgService.sql;
-    await sql`DELETE FROM projects WHERE project_id = ${projectId}`;
+    await sql`DELETE FROM projects WHERE id = ${projectId}`;
   }
 }

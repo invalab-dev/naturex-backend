@@ -34,6 +34,11 @@ export class Organization {
 export class OrganizationsService {
   constructor(private readonly pgService: PostgresService) {}
 
+  async findMany(): Promise<Organization[]> {
+    const res = await this.pgService.sql`SELECT * FROM organizations ORDER BY id DESC`;
+    return res.map((r) => new Organization(r as Organization));
+  }
+
   async findOneByName(name: string): Promise<Organization | null> {
     const res = await this.pgService
       .sql`SELECT * FROM organizations WHERE name = ${name}`;

@@ -110,6 +110,15 @@ export class UsersService {
     return new User(row as User);
   }
 
+  async findMany(): Promise<User[]> {
+    const res = await this.pgService.sql`SELECT * FROM users ORDER BY id DESC`;
+    return res.map((r) => new User(r as User));
+  }
+
+  async deleteOne(id: string): Promise<void> {
+    await this.pgService.sql`DELETE FROM users WHERE id = ${id}`;
+  }
+
   async updateOne(
     user: Pick<User, 'id'> & {
       password?: string | undefined | null;

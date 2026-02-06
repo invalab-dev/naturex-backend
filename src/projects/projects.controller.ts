@@ -15,6 +15,7 @@ import {
   ProjectsService,
   ProjectStatus,
   ProjectTheme,
+  ProjectStatusLog,
 } from './projects.service.js';
 import { UserRole } from '../users/users.service.js';
 import { UserRoles } from '../auth/guards/jwt-access.guard.js';
@@ -35,6 +36,20 @@ export class ProjectsController {
   //
   //   return this.projectsService.findManyByOrganizationId(user.organizationId);
   // }
+
+  @UserRoles(UserRole.ADMIN, UserRole.USER)
+  @Get(':id')
+  async getProjectById(@Param('id') id: string): Promise<Project> {
+    const project = await this.projectsService.findOneById(id);
+    if (!project) throw new NotFoundException('Project not found');
+    return project;
+  }
+
+  @UserRoles(UserRole.ADMIN, UserRole.USER)
+  @Get(':id/status-logs')
+  async getProjectStatusLogs(@Param('id') id: string): Promise<ProjectStatusLog[]> {
+    return this.projectsService.findStatusLogs(id);
+  }
 
   @UserRoles(UserRole.ADMIN, UserRole.USER)
   @Get('organization/:organizationId')
@@ -61,7 +76,7 @@ export class ProjectsController {
     const statusLog = {
       status: body.status as ProjectStatus,
       changedBy: body.changedBy as string,
-      description: body.description as string,
+      description: (body.statusDescription ?? body.description) as string,
     };
 
     return await this.projectsService.createOne(obj, statusLog);
@@ -88,7 +103,10 @@ export class ProjectsController {
       ? {
           status: body.status as ProjectStatus,
           changedBy: body.changedBy as string,
-          description: body.description as string | undefined | null,
+          description: (body.statusDescription ?? body.description) as
+            | string
+            | undefined
+            | null,
         }
       : null;
     return await this.projectsService.updateOne(obj, statusLog);

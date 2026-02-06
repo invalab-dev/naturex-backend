@@ -17,6 +17,12 @@ import { UserRole } from '../users/users.service.js';
 export class OrganizationsController {
   constructor(private readonly organizationsService: OrganizationsService) {}
 
+  @UserRoles(UserRole.ADMIN)
+  @Get()
+  async listOrganizations(): Promise<Organization[]> {
+    return this.organizationsService.findMany();
+  }
+
   @UserRoles(UserRole.ADMIN, UserRole.USER)
   @Get(':organizationId')
   async getOrganizationById(

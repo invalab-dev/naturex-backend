@@ -8,6 +8,7 @@ import {
   Req,
   Res,
   UseGuards,
+  Get,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service.js';
@@ -140,6 +141,13 @@ export class AuthController {
     });
 
     return null;
+  }
+
+  @UserRoles(UserRole.ADMIN, UserRole.USER)
+  @Get('me')
+  async me(@Req() req: Request) {
+    const { password: _, ...insensitiveUser } = req.user as any;
+    return insensitiveUser;
   }
 
   @UserRoles(UserRole.ADMIN, UserRole.USER)

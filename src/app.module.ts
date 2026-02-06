@@ -8,6 +8,8 @@ import { UploadsModule } from './uploads/uploads.module.js';
 import { QueueModule } from './queue/queue.module.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
+import { MetaModule } from './meta/meta.module.js';
+import { AdminModule } from './admin/admin.module.js';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { AppService } from './app.service.js';
     ProjectsModule,
     AreaGroupsModule,
     UploadsModule,
+    MetaModule,
+    AdminModule,
     // BullModule.forRoot({
     //   connection: {
     //     host: 'localhost',
