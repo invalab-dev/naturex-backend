@@ -1,14 +1,14 @@
-INSERT INTO organizations (id, name, type, size, website, status) VALUES
-                                                                      (1, 'NatureX Lab', 'COMPANY', 'SMALL', 'https://naturex.example', 'ACTIVE'),
-                                                                      (2, 'BlueRiver City Hall', 'PUBLIC', 'ENTERPRISE', 'https://blueriver.go.kr', 'ACTIVE'),
-                                                                      (3, 'GreenSteps NGO', 'NGO', 'MEDIUM', 'https://greensteps.org', 'ACTIVE'),
-                                                                      (4, 'Haneul Asset Management', 'COMPANY', 'MEDIUM', 'https://haneulam.example', 'INACTIVE'),
-                                                                      (5, 'EcoPark Facilities', 'COMPANY', 'SMALL', 'https://ecoparkfac.example', 'ACTIVE'),
-                                                                      (6, 'Sejong Research Institute', 'PUBLIC', 'MEDIUM', 'https://sri.example', 'ACTIVE'),
-                                                                      (7, 'UrbanPulse Analytics', 'COMPANY', 'SMALL', 'https://urbanpulse.example', 'ACTIVE'),
-                                                                      (8, 'Mirae BioDiversity Center', 'PUBLIC', 'MEDIUM', 'https://mbdc.example', 'ACTIVE'),
-                                                                      (9, 'Solitary Consultant Office', 'COMPANY', 'SOLO', NULL, 'ACTIVE'),
-                                                                      (10, 'Archived Demo Org', 'NGO', 'SMALL', 'https://archived-demo.example', 'ARCHIVED');
+INSERT INTO organizations (id, code, name, type, size, industry, contact, website, status) VALUES
+  (1, 'org-naturex-lab', 'NatureX Lab', 'COMPANY', 'SMALL', '기업', 'admin@naturex.example', 'https://naturex.example', 'active'),
+  (2, 'org-blueriver-cityhall', 'BlueRiver City Hall', 'PUBLIC', 'ENTERPRISE', '지자체', 'ops@blueriver.go.kr', 'https://blueriver.go.kr', 'active'),
+  (3, 'org-greensteps-ngo', 'GreenSteps NGO', 'NGO', 'MEDIUM', 'NGO', 'lead@greensteps.org', 'https://greensteps.org', 'active'),
+  (4, 'org-haneul-asset', 'Haneul Asset Management', 'COMPANY', 'MEDIUM', '기업', 'asset@haneulam.example', 'https://haneulam.example', 'paused'),
+  (5, 'org-ecopark-facilities', 'EcoPark Facilities', 'COMPANY', 'SMALL', '기업', 'field@ecoparkfac.example', 'https://ecoparkfac.example', 'active'),
+  (6, 'org-sejong-research', 'Sejong Research Institute', 'PUBLIC', 'MEDIUM', '공공기관', 'researcher@sri.example', 'https://sri.example', 'active'),
+  (7, 'org-urbanpulse', 'UrbanPulse Analytics', 'COMPANY', 'SMALL', '기업', 'analyst@urbanpulse.example', 'https://urbanpulse.example', 'active'),
+  (8, 'org-mirae-biodiversity', 'Mirae BioDiversity Center', 'PUBLIC', 'MEDIUM', '공공기관', 'bd@mbdc.example', 'https://mbdc.example', 'active'),
+  (9, 'org-solitary-consultant', 'Solitary Consultant Office', 'COMPANY', 'SOLO', '개인', 'consultant@solo.example', NULL, 'active'),
+  (10, 'org-archived-demo', 'Archived Demo Org', 'NGO', 'SMALL', '테스트', 'archived@archived-demo.example', 'https://archived-demo.example', 'archived');
 
 INSERT INTO users (id, email, password, roles, name, phone_number, bio, organization_id, language, timezone) VALUES
                                                                                                                 (1, 'admin@naturex.example', 'pw_hash_admin_01', ARRAY['ADMIN']::USER_ROLE[], '관리자', '010-1000-0001', '시스템 관리자', 1, 'ko', 'Asia/Seoul'),
@@ -41,19 +41,19 @@ INSERT INTO consents (user_id, notification_email, notification_sns, marketing_e
                                                                                                          (11, TRUE, TRUE, TRUE, TRUE),
                                                                                                          (12, FALSE, TRUE, FALSE, TRUE);
 
-INSERT INTO projects (id, name, description, location, theme, organization_id, manager_id, current_status_log_id) VALUES
-  (1, '시설 에너지 최적화 1차', '전력 사용 패턴 분석 기반 운영비 절감', '충북 청주 A캠퍼스', 'efficiency', 2, 5, NULL),
-  (2, '도시 공원 생물다양성 모니터링', '종 다양성 지표 수집·시각화', '세종 중앙공원', 'biodiversity', 8, 8, NULL),
-  (3, '자산 가치 향상 리모델링 우선순위', '시설물 상태 점검 데이터를 기반으로 투자 우선순위 도출', '서울 강남 B빌딩', 'asset', 4, 11, NULL),
-  (4, '현장 민원 대응 자동화', '이메일/AI 문의 분류 및 응답 자동화', '대전 시청', 'efficiency', 2, 6, NULL),
-  (5, '녹지 관리 비용 절감', '잔디/관목 관리 주기 최적화', '인천 C공원', 'efficiency', 5, 4, NULL),
-  (6, '데이터 대시보드 PoC', '조직별 프로젝트 KPI 대시보드 구축', '원격(온라인)', 'asset', 7, 3, NULL),
-  (7, '유휴자산 활용 컨설팅', '유휴 공간 활용 시나리오 작성', '부산 D센터', 'asset', 9, 12, NULL),
-  (8, 'NGO 캠페인 성과 분석', '참여자 데이터 기반 성과 측정', '서울', 'biodiversity', 3, 10, NULL),
-  (9, '시설 안전 점검 고도화', '보안/안전 관련 알림 체계 정비', '청주 산업단지', 'efficiency', 1, 2, NULL),
-  (10, '생태 데이터 표준화', '현장 수집 데이터 스키마 통합', '강원 E보호구역', 'biodiversity', 6, 7, NULL),
-  (11, '에너지 절감 시뮬레이션', '설비 교체 시나리오별 비용 추정', '광주 F단지', 'efficiency', 1, 13, NULL),
-  (12, '아카이브 데모 프로젝트', '테스트/아카이브 용도', '테스트 지역', 'efficiency', 10, 15, NULL);
+INSERT INTO projects (id, code, name, description, location, theme, organization_id, manager_id, current_status_log_id, result_config_json) VALUES
+  (1, 'proj-energy-optimization-1', '시설 에너지 최적화 1차', '전력 사용 패턴 분석 기반 운영비 절감', '충북 청주 A캠퍼스', 'efficiency', 2, 5, NULL, NULL),
+  (2, 'proj-biodiversity-monitoring', '도시 공원 생물다양성 모니터링', '종 다양성 지표 수집·시각화', '세종 중앙공원', 'biodiversity', 8, 8, NULL, NULL),
+  (3, 'proj-asset-remodeling-priority', '자산 가치 향상 리모델링 우선순위', '시설물 상태 점검 데이터를 기반으로 투자 우선순위 도출', '서울 강남 B빌딩', 'asset', 4, 11, NULL, NULL),
+  (4, 'proj-complaints-automation', '현장 민원 대응 자동화', '이메일/AI 문의 분류 및 응답 자동화', '대전 시청', 'efficiency', 2, 6, NULL, NULL),
+  (5, 'proj-green-cost-reduction', '녹지 관리 비용 절감', '잔디/관목 관리 주기 최적화', '인천 C공원', 'efficiency', 5, 4, NULL, NULL),
+  (6, 'proj-dashboard-poc', '데이터 대시보드 PoC', '조직별 프로젝트 KPI 대시보드 구축', '원격(온라인)', 'asset', 7, 3, NULL, NULL),
+  (7, 'proj-idle-asset-consulting', '유휴자산 활용 컨설팅', '유휴 공간 활용 시나리오 작성', '부산 D센터', 'asset', 9, 12, NULL, NULL),
+  (8, 'proj-ngo-campaign-analytics', 'NGO 캠페인 성과 분석', '참여자 데이터 기반 성과 측정', '서울', 'biodiversity', 3, 10, NULL, NULL),
+  (9, 'proj-facility-safety-check', '시설 안전 점검 고도화', '보안/안전 관련 알림 체계 정비', '청주 산업단지', 'efficiency', 1, 2, NULL, NULL),
+  (10, 'proj-ecodata-standardization', '생태 데이터 표준화', '현장 수집 데이터 스키마 통합', '강원 E보호구역', 'biodiversity', 6, 7, NULL, NULL),
+  (11, 'proj-energy-saving-sim', '에너지 절감 시뮬레이션', '설비 교체 시나리오별 비용 추정', '광주 F단지', 'efficiency', 1, 13, NULL, NULL),
+  (12, 'proj-archived-demo', '아카이브 데모 프로젝트', '테스트/아카이브 용도', '테스트 지역', 'efficiency', 10, 15, NULL, NULL);
 
 INSERT INTO project_status_logs (id, project_id, status, changed_by, description, created_at) VALUES
   (1, 1, 'pending', 5, '요청 접수 및 범위 정의 완료', '2026-01-03 10:15:00+09'),
@@ -98,3 +98,9 @@ INSERT INTO questions (id, type, status, questioner_id, content, responder_id, r
                                                                                                                       (10, 'AI', 'REGISTERED', 7, '표준 스키마 버전 관리 방식 추천해 주세요.', NULL, NULL, NULL, '2026-01-11 10:10:00+09'),
                                                                                                                       (11, 'EMAIL', 'CHECKING', 12, '컨설팅 결과물을 이메일로 전달할 때 첨부 구조를 추천해 주세요.', 2, NULL, NULL, '2026-01-12 15:55:00+09'),
                                                                                                                       (12, 'AI', 'RESPONDED', 1, '보안 알림은 기본 ON이 좋은가요?', 1, '보안/안전 성격의 알림은 사용자 보호 목적이므로 기본 ON이 일반적이며, 법/정책 고지와 수신거부(범위 제한) 정책을 함께 제공하는 것이 좋습니다.', '2026-01-13 11:45:00+09', '2026-01-13 11:20:00+09');
+
+-- Seed empty deliverables rows for demo projects (contract-02)
+INSERT INTO project_deliverables (project_id, maps_json, downloads_json, visuals_json)
+SELECT p.id, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb
+FROM projects p
+WHERE NOT EXISTS (SELECT 1 FROM project_deliverables d WHERE d.project_id = p.id);

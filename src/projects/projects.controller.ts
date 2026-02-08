@@ -1,120 +1,79 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  NotFoundException,
-  Param,
-  Patch,
-  Post,
-  Req,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Query } from '@nestjs/common';
 
-import {
-  Project,
-  ProjectsService,
-  ProjectStatus,
-  ProjectTheme,
-  ProjectStatusLog,
-} from './projects.service.js';
+import { ProjectsService, ProjectStatus, ProjectTheme } from './projects.service.js';
 import { UserRole } from '../users/users.service.js';
 import { UserRoles } from '../auth/guards/jwt-access.guard.js';
-import type { RequestWithUser } from '../users/users.controller.js';
 
 @Controller('projects')
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
-  // @UserRoles(UserRole.USER)
-  // @Get('organization/belonging')
-  // async getProjectsOfBelongingOrganization(@Req() req: ResWithUser) {
-  //   const user = req.user;
-  //
-  //   if (!user.organizationId) {
-  //     return [];
-  //   }
-  //
-  //   return this.projectsService.findManyByOrganizationId(user.organizationId);
-  // }
+  // Contract-02: list with optional filters
+  @UserRoles(UserRole.ADMIN)
+  @Get()
+  async listProjects(
+    @Query('orgId') orgId?: string,
+    @Query('theme') theme?: ProjectTheme,
+    @Query('stage') stage?: ProjectStatus,
+    @Query('q') q?: string,
+  ) {
+    return this.projectsService.findMany({
+      orgCode: orgId,
+      theme,
+      stage,
+      q,
+    });
+  }
 
-  @UserRoles(UserRole.ADMIN, UserRole.USER)
-  @Get(':id')
-  async getProjectById(@Param('id') id: string): Promise<Project> {
-    const project = await this.projectsService.findOneById(id);
+  // Contract-02: project by external code
+  @UserRoles(UserRole.ADMIN)
+  @Get(':projectId')
+  async getProjectByCode(@Param('projectId') projectId: string) {
+    const project = await this.projectsService.findOneByCode(projectId);
     if (!project) throw new NotFoundException('Project not found');
     return project;
   }
 
-  @UserRoles(UserRole.ADMIN, UserRole.USER)
-  @Get(':id/status-logs')
-  async getProjectStatusLogs(@Param('id') id: string): Promise<ProjectStatusLog[]> {
-    return this.projectsService.findStatusLogs(id);
-  }
-
-  @UserRoles(UserRole.ADMIN, UserRole.USER)
-  @Get('organization/:organizationId')
-  async getProjectsByOrganization(
-    @Param('organizationId') organizationId: string,
-  ): Promise<Project[]> {
-    return this.projectsService.findManyByOrganizationId(organizationId);
-  }
-
+  // Contract-02: create project (accept orgId slug)
   @UserRoles(UserRole.ADMIN)
   @Post()
-  async createProject(
-    @Req() req: RequestWithUser,
+  async createProject(@Body() body: Record<string, any>) {
+    return this.projectsService.createOneContract02(
+      {
+        code: body.projectId as string,
+        name: body.name as string,
+        description: (body.description as string | undefined | null) ?? null,
+        location: (body.location as string | undefined | null) ?? null,
+        theme: body.theme as ProjectTheme,
+        orgCode: body.orgId as string,
+        managerId: (body.managerId as string | undefined | null) ?? null,
+        resultConfig: (body.resultConfig as any) ?? null,
+      },
+      {
+        status: 'pending',
+        changedBy: null,
+        description: (body.memo as string | undefined | null) ?? null,
+      },
+    );
+  }
+
+  // Contract-02: delete by external code
+  @UserRoles(UserRole.ADMIN)
+  @Delete(':projectId')
+  async deleteProject(@Param('projectId') projectId: string) {
+    await this.projectsService.deleteOneByCode(projectId);
+    return null;
+  }
+
+  // Contract-02: stage change endpoint
+  @UserRoles(UserRole.ADMIN)
+  @Post(':projectId/delivery-stage')
+  async changeDeliveryStage(
+    @Param('projectId') projectId: string,
     @Body() body: Record<string, any>,
   ) {
-    const obj = {
-      name: body.name as string,
-      description: body.description as string | undefined | null,
-      location: body.location as string | undefined | null,
-      theme: body.theme as ProjectTheme,
-      organizationId: body.organizationId as string | undefined | null,
-      managerId: body.managerId as string | undefined | null,
-    };
-    const statusLog = {
-      status: body.status as ProjectStatus,
-      changedBy: body.changedBy as string,
-      description: (body.statusDescription ?? body.description) as string,
-    };
-
-    return await this.projectsService.createOne(obj, statusLog);
-  }
-
-  @UserRoles(UserRole.ADMIN)
-  @Patch()
-  async updateProject(
-    @Req() req: RequestWithUser,
-    @Body() body: Record<string, any>,
-  ): Promise<Project> {
-    const existed = await this.projectsService.findOneById(body.id as string);
-    if (!existed) throw new NotFoundException('Project not found');
-
-    const obj = {
-      id: body.id as string,
-      name: body.name as string | undefined | null,
-      description: body.description as string | undefined | null,
-      location: body.location as string | undefined | null,
-      organizationId: body.organizationId as string | undefined | null,
-      managerId: body.managerId as string | undefined | null,
-    };
-    const statusLog = body.status
-      ? {
-          status: body.status as ProjectStatus,
-          changedBy: body.changedBy as string,
-          description: (body.statusDescription ?? body.description) as
-            | string
-            | undefined
-            | null,
-        }
-      : null;
-    return await this.projectsService.updateOne(obj, statusLog);
-  }
-
-  @UserRoles(UserRole.ADMIN)
-  @Delete()
-  async deleteProject(@Body() body: Record<string, any>) {
-    await this.projectsService.deleteOne(body.id as string);
+    const stage = body.stage as ProjectStatus;
+    const memo = (body.memo as string | undefined | null) ?? null;
+    return this.projectsService.changeStatusByCode(projectId, stage, memo);
   }
 }

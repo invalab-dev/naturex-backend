@@ -8,6 +8,8 @@ CREATE TYPE PROJECT_STATUS AS ENUM('pending', 'analyzing', 'delivering', 'execut
 
 CREATE TABLE IF NOT EXISTS projects (
     id                      BIGSERIAL PRIMARY KEY,
+    -- External identifier (slug) for FE routing/UI stability
+    code                    VARCHAR(120) NOT NULL UNIQUE,
     name                    VARCHAR(255) NOT NULL,
     description             TEXT,
     location                VARCHAR(255),
@@ -15,6 +17,10 @@ CREATE TABLE IF NOT EXISTS projects (
     organization_id         BIGINT,
     manager_id              BIGINT,
     current_status_log_id   BIGINT,
+    result_config_json       JSONB,
+
+    created_at              TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at              TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
     CONSTRAINT fk_projects_organization FOREIGN KEY(organization_id) REFERENCES organizations(id),
     CONSTRAINT fk_projects_manager      FOREIGN KEY(manager_id) REFERENCES users(id)
