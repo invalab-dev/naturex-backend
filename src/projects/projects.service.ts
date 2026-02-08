@@ -1,14 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { PostgresService } from '../postgres.service.js';
 
-export type ProjectTheme = '운영비 절감' | '자산 가치 향상' | '생물 다양성';
+// Legacy types (kept for reference)
+// export type ProjectTheme = '운영비 절감' | '자산 가치 향상' | '생물 다양성';
+// export type ProjectStatus =
+//   | 'REGISTERED'
+//   | 'ANALYZING'
+//   | 'PROVIDING'
+//   | 'COMPLETED'
+//   | 'PAUSED';
+
+// v2 types aligned to FE contract-02
+export type ProjectTheme = 'efficiency' | 'asset' | 'biodiversity';
 
 export type ProjectStatus =
-  | 'REGISTERED'
-  | 'ANALYZING'
-  | 'PROVIDING'
-  | 'COMPLETED'
-  | 'PAUSED';
+  | 'pending'
+  | 'analyzing'
+  | 'delivering'
+  | 'executing'
+  | 'completed'
+  | 'paused';
 
 export class ProjectStatusLog {
   id!: string;
@@ -65,16 +76,29 @@ export class ProjectsService {
   constructor(private readonly pgService: PostgresService) {}
 
   async findOneById(id: string): Promise<Project | null> {
-    const res = await this.pgService
-      .sql`SELECT * FROM projects WHERE id = ${id}`;
+    const res = await this.pgService.sql`
+      SELECT p.*,
+             COALESCE(psl.status, 'pending') AS current_status
+      FROM projects p
+      LEFT JOIN project_status_logs psl
+        ON psl.id = p.current_status_log_id
+      WHERE p.id = ${id}
+    `;
     const row = res.at(0);
     if (!row) return null;
     return new Project(row as Project);
   }
 
   async findManyByOrganizationId(organizationId: string): Promise<Project[]> {
-    const res = await this.pgService
-      .sql`SELECT * FROM projects WHERE organization_id = ${organizationId} ORDER BY id DESC`;
+    const res = await this.pgService.sql`
+      SELECT p.*,
+             COALESCE(psl.status, 'pending') AS current_status
+      FROM projects p
+      LEFT JOIN project_status_logs psl
+        ON psl.id = p.current_status_log_id
+      WHERE p.organization_id = ${organizationId}
+      ORDER BY p.id DESC
+    `;
     return res.map((r) => new Project(r as Project));
   }
 

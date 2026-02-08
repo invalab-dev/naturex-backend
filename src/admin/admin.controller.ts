@@ -31,12 +31,12 @@ export class AdminController {
 
     // group by current status (best-effort)
     const byStatusRows = await sql`
-      SELECT COALESCE(psl.status, 'REGISTERED') AS status,
+      SELECT COALESCE(psl.status, 'pending') AS status,
              COUNT(*)::int AS count
       FROM projects p
       LEFT JOIN project_status_logs psl
         ON psl.id = p.current_status_log_id
-      GROUP BY COALESCE(psl.status, 'REGISTERED')
+      GROUP BY COALESCE(psl.status, 'pending')
     `;
 
     const byTheme: Record<string, number> = {};
