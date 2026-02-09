@@ -17,6 +17,12 @@ import { UserRole } from '../users/users.service.js';
 export class OrganizationsController {
   constructor(private readonly organizationsService: OrganizationsService) {}
 
+  @UserRoles(UserRole.ADMIN)
+  @Get()
+  async getAllOrganizations(): Promise<Organization[]> {
+    return this.organizationsService.findAll();
+  }
+
   @UserRoles(UserRole.ADMIN, UserRole.USER)
   @Get(':organizationId')
   async getOrganizationById(
@@ -36,6 +42,7 @@ export class OrganizationsController {
       name: body.name as string,
       type: body.type as Organization['type'],
       size: body.size as Organization['size'],
+      contact: body.contact as string | undefined | null,
       website: body.website as string | undefined | null,
       status: body.status as Organization['status'] | undefined | null,
     };
@@ -58,6 +65,7 @@ export class OrganizationsController {
       name: body.name as string | undefined | null,
       type: body.type as Organization['type'] | undefined | null,
       size: body.size as Organization['size'] | undefined | null,
+      contact: body.contact as string | undefined | null,
       website: body.website as string | undefined | null,
       status: body.status as Organization['status'] | undefined | null,
     };

@@ -10,6 +10,7 @@ export class Organization {
   public name!: string;
   public type!: 'COMPANY' | 'PUBLIC' | 'NGO';
   public size!: 'SOLO' | 'SMALL' | 'MEDIUM' | 'ENTERPRISE';
+  public contact!: string | null;
   public website!: string | null;
   public status!: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
 
@@ -18,6 +19,7 @@ export class Organization {
     name: string;
     type: 'COMPANY' | 'PUBLIC' | 'NGO';
     size: 'SOLO' | 'SMALL' | 'MEDIUM' | 'ENTERPRISE';
+    contact: string | null;
     website: string | null;
     status: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
   }) {
@@ -25,6 +27,7 @@ export class Organization {
     this.name = org.name;
     this.type = org.type;
     this.size = org.size;
+    this.contact = org.contact;
     this.website = org.website;
     this.status = org.status;
   }
@@ -33,6 +36,11 @@ export class Organization {
 @Injectable()
 export class OrganizationsService {
   constructor(private readonly pgService: PostgresService) {}
+
+  async findAll(): Promise<Organization[]> {
+    const res = await this.pgService.sql`SELECT * FROM organization`;
+    return res.map((row) => new Organization(row as Organization));
+  }
 
   async findOneByName(name: string): Promise<Organization | null> {
     const res = await this.pgService
