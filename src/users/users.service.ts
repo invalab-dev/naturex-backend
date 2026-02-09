@@ -47,6 +47,11 @@ export class User {
 export class UsersService {
   constructor(private readonly pgService: PostgresService) {}
 
+  async findAll(): Promise<User[]> {
+    const res = await this.pgService.sql`SELECT * FROM users;`;
+    return res.map((row) => new User(row as User));
+  }
+
   async findOneByEmail(email: string): Promise<User | null> {
     const res = await this.pgService
       .sql`SELECT * FROM users WHERE email = ${email}`;
@@ -148,5 +153,10 @@ export class UsersService {
     RETURNING *`;
     const row = res.at(0)!;
     return new User(row as User);
+  }
+
+  toInsensitiveUser(user: User): Omit<User, 'password'> {
+    const { password: _, ...insensitiveUser } = user;
+    return insensitiveUser;
   }
 }

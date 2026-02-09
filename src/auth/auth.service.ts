@@ -73,7 +73,7 @@ export class AuthService {
     });
 
     const accessToken = await this.signAccessToken(user, sessionId);
-    const { password: _, ...insensitiveUser } = user;
+    const insensitiveUser = this.usersService.toInsensitiveUser(user);
 
     return {
       access_token: accessToken,
@@ -112,7 +112,7 @@ export class AuthService {
       ip: meta?.ip ?? null,
     });
     const accessToken = await this.signAccessToken(user, sessionId);
-    const { password: _, ...insensitiveUser } = user;
+    const insensitiveUser = this.usersService.toInsensitiveUser(user);
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
