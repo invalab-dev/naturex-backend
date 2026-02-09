@@ -42,18 +42,18 @@ INSERT INTO consents (user_id, notification_email, notification_sns, marketing_e
                                                                                                          (12, FALSE, TRUE, FALSE, TRUE);
 
 INSERT INTO projects (id, name, description, location, theme, organization_id, manager_id, current_status_log_id) VALUES
-                                                                                                                    (1, '시설 에너지 최적화 1차', '전력 사용 패턴 분석 기반 운영비 절감', '충북 청주 A캠퍼스', '운영비 절감', 2, 5, NULL),
-                                                                                                                    (2, '도시 공원 생물다양성 모니터링', '종 다양성 지표 수집·시각화', '세종 중앙공원', '생물 다양성', 8, 8, NULL),
-                                                                                                                    (3, '자산 가치 향상 리모델링 우선순위', '시설물 상태 점검 데이터를 기반으로 투자 우선순위 도출', '서울 강남 B빌딩', '자산 가치 향상', 4, 11, NULL),
-                                                                                                                    (4, '현장 민원 대응 자동화', '이메일/AI 문의 분류 및 응답 자동화', '대전 시청', '운영비 절감', 2, 6, NULL),
-                                                                                                                    (5, '녹지 관리 비용 절감', '잔디/관목 관리 주기 최적화', '인천 C공원', '운영비 절감', 5, 4, NULL),
-                                                                                                                    (6, '데이터 대시보드 PoC', '조직별 프로젝트 KPI 대시보드 구축', '원격(온라인)', '자산 가치 향상', 7, 3, NULL),
-                                                                                                                    (7, '유휴자산 활용 컨설팅', '유휴 공간 활용 시나리오 작성', '부산 D센터', '자산 가치 향상', 9, 12, NULL),
-                                                                                                                    (8, 'NGO 캠페인 성과 분석', '참여자 데이터 기반 성과 측정', '서울', '생물 다양성', 3, 10, NULL),
-                                                                                                                    (9, '시설 안전 점검 고도화', '보안/안전 관련 알림 체계 정비', '청주 산업단지', '운영비 절감', 1, 2, NULL),
-                                                                                                                    (10, '생태 데이터 표준화', '현장 수집 데이터 스키마 통합', '강원 E보호구역', '생물 다양성', 6, 7, NULL),
-                                                                                                                    (11, '에너지 절감 시뮬레이션', '설비 교체 시나리오별 비용 추정', '광주 F단지', '운영비 절감', 1, 13, NULL),
-                                                                                                                    (12, '아카이브 데모 프로젝트', '테스트/아카이브 용도', '테스트 지역', '운영비 절감', 10, 15, NULL);
+                                                                                                                    (1, '시설 에너지 최적화 1차', '전력 사용 패턴 분석 기반 운영비 절감', '충북 청주 A캠퍼스', 'EFFICIENCY', 2, 5, NULL),
+                                                                                                                    (2, '도시 공원 생물다양성 모니터링', '종 다양성 지표 수집·시각화', '세종 중앙공원', 'BIODIVERSITY', 8, 8, NULL),
+                                                                                                                    (3, '자산 가치 향상 리모델링 우선순위', '시설물 상태 점검 데이터를 기반으로 투자 우선순위 도출', '서울 강남 B빌딩', 'ASSET', 4, 11, NULL),
+                                                                                                                    (4, '현장 민원 대응 자동화', '이메일/AI 문의 분류 및 응답 자동화', '대전 시청', 'EFFICIENCY', 2, 6, NULL),
+                                                                                                                    (5, '녹지 관리 비용 절감', '잔디/관목 관리 주기 최적화', '인천 C공원', 'EFFICIENCY', 5, 4, NULL),
+                                                                                                                    (6, '데이터 대시보드 PoC', '조직별 프로젝트 KPI 대시보드 구축', '원격(온라인)', 'ASSET', 7, 3, NULL),
+                                                                                                                    (7, '유휴자산 활용 컨설팅', '유휴 공간 활용 시나리오 작성', '부산 D센터', 'ASSET', 9, 12, NULL),
+                                                                                                                    (8, 'NGO 캠페인 성과 분석', '참여자 데이터 기반 성과 측정', '서울', 'BIODIVERSITY', 3, 10, NULL),
+                                                                                                                    (9, '시설 안전 점검 고도화', '보안/안전 관련 알림 체계 정비', '청주 산업단지', 'EFFICIENCY', 1, 2, NULL),
+                                                                                                                    (10, '생태 데이터 표준화', '현장 수집 데이터 스키마 통합', '강원 E보호구역', 'BIODIVERSITY', 6, 7, NULL),
+                                                                                                                    (11, '에너지 절감 시뮬레이션', '설비 교체 시나리오별 비용 추정', '광주 F단지', 'EFFICIENCY', 1, 13, NULL),
+                                                                                                                    (12, '아카이브 데모 프로젝트', '테스트/아카이브 용도', '테스트 지역', 'EFFICIENCY', 10, 15, NULL);
 
 INSERT INTO project_status_logs (id, project_id, status, changed_by, description, created_at) VALUES
                                                                                                   (1, 1, 'REGISTERED', 5, '요청 접수 및 범위 정의 완료', '2026-01-03 10:15:00+09'),
@@ -72,11 +72,11 @@ INSERT INTO project_status_logs (id, project_id, status, changed_by, description
                                                                                                   (14, 9, 'ANALYZING', 2, '보안 알림 채널 정책 검토 시작', '2026-01-15 09:10:00+09'),
                                                                                                   (15, 10, 'PROVIDING', 7, '표준 스키마 v0.1 작성 및 공유', '2026-01-17 16:00:00+09');
 
-UPDATE projects SET current_status = 1 where id = 1;
-UPDATE projects SET current_status = 3 where id = 2;
-UPDATE projects SET current_status = 6 where id = 3;
-UPDATE projects SET current_status = 14 where id = 9;
-UPDATE projects SET current_status = 15 where id = 10;
+UPDATE projects SET current_status_log_id = 1 where id = 1;
+UPDATE projects SET current_status_log_id = 3 where id = 2;
+UPDATE projects SET current_status_log_id = 6 where id = 3;
+UPDATE projects SET current_status_log_id = 14 where id = 9;
+UPDATE projects SET current_status_log_id = 15 where id = 10;
 
 INSERT INTO questions (id, type, status, questioner_id, content, responder_id, respond, responded_at, created_at) VALUES
                                                                                                                       (1, 'AI', 'REGISTERED', 5, '운영비 절감 프로젝트에서 어떤 지표를 먼저 수집해야 하나요?', NULL, NULL, NULL, '2026-01-02 09:00:00+09'),

@@ -1,5 +1,5 @@
 ALTER TABLE projects DROP CONSTRAINT fk_project_current_status;
-DROP TABLE IF EXISTS auth_session;
+DROP TABLE IF EXISTS auth_sessions;
 DROP TABLE IF EXISTS project_status_logs CASCADE;
 DROP TABLE IF EXISTS projects CASCADE;
 DROP TYPE IF EXISTS PROJECT_THEME;
