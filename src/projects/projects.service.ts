@@ -79,22 +79,17 @@ export class ProjectsService {
 
   async count(): Promise<string> {
     const res = await this.pgService.sql`SELECT COUNT(*) FROM projects`;
-    return res.at(0).count;
+    return res.at(0)!.count;
   }
 
-  async overviewOfTheme(): Promise<{ theme: ProjectTheme; count: string }[]> {
-    return await this.pgService
-      .sql`SELECT theme, COUNT(*) FROM projects GROUP BY theme`;
-  }
-
-  async overviewOfStatus(): Promise<
-    { status: ProjectStatus; count: string }[]
+  async overview(): Promise<
+    { theme: ProjectTheme; status: ProjectStatus; count: string }[]
   > {
-    return this.pgService.sql`
-      SELECT status, COUNT(*)
-      FROM projects JOIN project_status_logs 
-      ON projects.current_status_log_id = project_status_logs.id
-      GROUP BY theme`;
+    return await this.pgService.sql`
+        SELECT theme, status, COUNT(*)::INT AS count 
+        FROM projects JOIN project_status_logs 
+        ON projects.current_status_log_id = project_status_logs.id 
+        GROUP BY projects.theme, project_status_logs.status`;
   }
 
   async findOneById(id: string): Promise<Project | null> {

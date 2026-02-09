@@ -37,15 +37,9 @@ export class ProjectsController {
   }
 
   @UserRoles(UserRole.ADMIN)
-  @Get('overview/theme')
-  async getOverviewOfTheme() {
-    return await this.projectsService.overviewOfTheme();
-  }
-
-  @UserRoles(UserRole.ADMIN)
-  @Get('overview/status')
-  async getOverviewOfStatus() {
-    return await this.projectsService.overviewOfStatus();
+  @Get('overview')
+  async getOverview() {
+    return await this.projectsService.overview();
   }
 
   // @UserRoles(UserRole.USER)

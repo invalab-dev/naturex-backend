@@ -44,7 +44,7 @@ export class OrganizationsService {
 
   async count(): Promise<string> {
     const res = await this.pgService.sql`SELECT COUNT(*) FROM organizations`;
-    return res.at(0).count;
+    return res.at(0)!.count;
   }
 
   async findOneByName(name: string): Promise<Organization | null> {
