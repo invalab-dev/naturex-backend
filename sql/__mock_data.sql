@@ -70,13 +70,22 @@ INSERT INTO project_status_logs (id, project_id, status, changed_by, description
                                                                                                   (12, 7, 'ANALYZING', 12, '현장 인터뷰 진행 및 요구사항 수집', '2026-01-11 12:00:00+09'),
                                                                                                   (13, 8, 'ANALYZING', 10, '참여자 데이터 정제(중복 제거)', '2026-01-13 14:45:00+09'),
                                                                                                   (14, 9, 'ANALYZING', 2, '보안 알림 채널 정책 검토 시작', '2026-01-15 09:10:00+09'),
-                                                                                                  (15, 10, 'PROVIDING', 7, '표준 스키마 v0.1 작성 및 공유', '2026-01-17 16:00:00+09');
+                                                                                                  (15, 10, 'PROVIDING', 7, '표준 스키마 v0.1 작성 및 공유', '2026-01-17 16:00:00+09'),
+                                                                                                  (16, 11, 'REGISTERED', 13, '프로젝트 초기 등록', '2026-02-01 13:00:00+09'),
+                                                                                                  (17, 12, 'REGISTERED', 15, '프로젝트 초기 등록', '2026-02-12 12:00:00+09');
 
-UPDATE projects SET current_status_log_id = 1 where id = 1;
-UPDATE projects SET current_status_log_id = 3 where id = 2;
-UPDATE projects SET current_status_log_id = 6 where id = 3;
-UPDATE projects SET current_status_log_id = 14 where id = 9;
-UPDATE projects SET current_status_log_id = 15 where id = 10;
+UPDATE projects SET current_status_log_id = 2  WHERE id = 1;
+UPDATE projects SET current_status_log_id = 4  WHERE id = 2;
+UPDATE projects SET current_status_log_id = 6  WHERE id = 3;
+UPDATE projects SET current_status_log_id = 8  WHERE id = 4;
+UPDATE projects SET current_status_log_id = 9  WHERE id = 5;
+UPDATE projects SET current_status_log_id = 11 WHERE id = 6;
+UPDATE projects SET current_status_log_id = 12 WHERE id = 7;
+UPDATE projects SET current_status_log_id = 13 WHERE id = 8;
+UPDATE projects SET current_status_log_id = 14 WHERE id = 9;
+UPDATE projects SET current_status_log_id = 15 WHERE id = 10;
+UPDATE projects SET current_status_log_id = 16 WHERE id = 11;
+UPDATE projects SET current_status_log_id = 17 WHERE id = 12;
 
 INSERT INTO questions (id, type, status, questioner_id, content, responder_id, respond, responded_at, created_at) VALUES
                                                                                                                       (1, 'AI', 'REGISTERED', 5, '운영비 절감 프로젝트에서 어떤 지표를 먼저 수집해야 하나요?', NULL, NULL, NULL, '2026-01-02 09:00:00+09'),

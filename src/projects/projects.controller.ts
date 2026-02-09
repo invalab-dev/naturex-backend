@@ -24,6 +24,12 @@ import type { RequestWithUser } from '../users/users.controller.js';
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
+  @UserRoles(UserRole.ADMIN)
+  @Get()
+  async getAllProjects(): Promise<Project[]> {
+    return await this.projectsService.findAll();
+  }
+
   // @UserRoles(UserRole.USER)
   // @Get('organization/belonging')
   // async getProjectsOfBelongingOrganization(@Req() req: ResWithUser) {

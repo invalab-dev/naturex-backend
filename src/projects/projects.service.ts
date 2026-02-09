@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PostgresService } from '../postgres.service.js';
 
-export type ProjectTheme = '운영비 절감' | '자산 가치 향상' | '생물 다양성';
+export type ProjectTheme = 'EFFICIENCY' | 'ASSET' | 'BIODIVERSITY';
 
 export type ProjectStatus =
   | 'REGISTERED'
@@ -63,6 +63,19 @@ export class Project {
 @Injectable()
 export class ProjectsService {
   constructor(private readonly pgService: PostgresService) {}
+
+  async findAll(): Promise<Project[]> {
+    const res = await this.pgService.sql`
+          SELECT 
+            row_to_json(projects) AS project, 
+            row_to_json(project_status_logs) AS project_status_log
+          FROM projects JOIN project_status_logs 
+          ON projects.current_status_log_id = project_status_logs.id`;
+    return res.map((row) => {
+      const o = { ...row.project, currentStatus: row.projectStatusLog.status };
+      return new Project(o as Project);
+    });
+  }
 
   async findOneById(id: string): Promise<Project | null> {
     const res = await this.pgService

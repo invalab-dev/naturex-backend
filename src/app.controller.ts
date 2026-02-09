@@ -2,10 +2,14 @@ import { Controller, Get, Req } from '@nestjs/common';
 import { AppService } from './app.service.js';
 import { Public, UserRoles } from './auth/guards/jwt-access.guard.js';
 import { UserRole } from './users/users.service.js';
+import { PostgresService } from './postgres.service.js';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly appService: AppService,
+    private readonly pgService: PostgresService,
+  ) {}
 
   @Public()
   @Get('hello')
@@ -18,5 +22,14 @@ export class AppController {
   @Get('userHello')
   getUserHello(@Req() req: any): string {
     return 'Hello User';
+  }
+
+  @Public()
+  @Get()
+  async testPostgres() {
+    const res = await this.pgService
+      .sql`SELECT row_to_json(projects) AS projects, row_to_json(project_status_logs) AS project_status_logs FROM projects, project_status_logs WHERE projects.current_status_log_id = project_status_logs.id`;
+
+    return res;
   }
 }
