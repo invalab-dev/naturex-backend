@@ -28,8 +28,7 @@ export class AppController {
   @Get()
   async testPostgres() {
     const res = await this.pgService
-      .sql`SELECT row_to_json(projects) AS projects, row_to_json(project_status_logs) AS project_status_logs FROM projects, project_status_logs WHERE projects.current_status_log_id = project_status_logs.id`;
-
-    return res;
+      .sql`SELECT COUNT(*) FROM users`;
+    return res.at(0);
   }
 }

@@ -23,6 +23,12 @@ export class OrganizationsController {
     return this.organizationsService.findAll();
   }
 
+  @UserRoles(UserRole.ADMIN)
+  @Get('count')
+  async getOrganizationsCount(): Promise<string> {
+    return await this.organizationsService.count();
+  }
+
   @UserRoles(UserRole.ADMIN, UserRole.USER)
   @Get(':organizationId')
   async getOrganizationById(

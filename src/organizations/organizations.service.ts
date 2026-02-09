@@ -38,8 +38,13 @@ export class OrganizationsService {
   constructor(private readonly pgService: PostgresService) {}
 
   async findAll(): Promise<Organization[]> {
-    const res = await this.pgService.sql`SELECT * FROM organization`;
+    const res = await this.pgService.sql`SELECT * FROM organizations`;
     return res.map((row) => new Organization(row as Organization));
+  }
+
+  async count(): Promise<string> {
+    const res = await this.pgService.sql`SELECT COUNT(*) FROM organizations`;
+    return res.at(0).count;
   }
 
   async findOneByName(name: string): Promise<Organization | null> {

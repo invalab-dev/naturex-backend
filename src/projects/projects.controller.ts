@@ -30,6 +30,24 @@ export class ProjectsController {
     return await this.projectsService.findAll();
   }
 
+  @UserRoles(UserRole.ADMIN)
+  @Get('count')
+  async getProjectsCount(): Promise<string> {
+    return await this.projectsService.count();
+  }
+
+  @UserRoles(UserRole.ADMIN)
+  @Get('overview/theme')
+  async getOverviewOfTheme() {
+    return await this.projectsService.overviewOfTheme();
+  }
+
+  @UserRoles(UserRole.ADMIN)
+  @Get('overview/status')
+  async getOverviewOfStatus() {
+    return await this.projectsService.overviewOfStatus();
+  }
+
   // @UserRoles(UserRole.USER)
   // @Get('organization/belonging')
   // async getProjectsOfBelongingOrganization(@Req() req: ResWithUser) {
