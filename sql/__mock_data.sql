@@ -11,21 +11,21 @@ INSERT INTO organizations (id, name, type, size, website, status) VALUES
                                                                       (10, 'Archived Demo Org', 'NGO', 'SMALL', 'https://archived-demo.example', 'ARCHIVED');
 
 INSERT INTO users (id, email, password, roles, name, phone_number, bio, organization_id, language, timezone) VALUES
-                                                                                                                (1, 'admin@naturex.example', 'pw_hash_admin_01', ARRAY['ADMIN']::USER_ROLE[], '관리자', '010-1000-0001', '시스템 관리자', 1, 'ko', 'Asia/Seoul'),
-                                                                                                                (2, 'pm@naturex.example', 'pw_hash_user_02', ARRAY['USER']::USER_ROLE[], '이프로', '010-1000-0002', '프로젝트 매니저', 1, 'ko', 'Asia/Seoul'),
-                                                                                                                (3, 'analyst@urbanpulse.example', 'pw_hash_user_03', ARRAY['USER']::USER_ROLE[], '박분석', '010-1000-0003', '데이터 분석 담당', 7, 'ko', 'Asia/Seoul'),
-                                                                                                                (4, 'field@ecoparkfac.example', 'pw_hash_user_04', ARRAY['USER']::USER_ROLE[], '최현장', '010-1000-0004', '현장 운영 담당', 5, 'ko', 'Asia/Seoul'),
-                                                                                                                (5, 'ops@blueriver.go.kr', 'pw_hash_user_05', ARRAY['USER']::USER_ROLE[], '정운영', '010-1000-0005', '지자체 시설 운영', 2, 'ko', 'Asia/Seoul'),
-                                                                                                                (6, 'planner@blueriver.go.kr', 'pw_hash_user_06', ARRAY['USER']::USER_ROLE[], '윤기획', '010-1000-0006', '정책/기획', 2, 'ko', 'Asia/Seoul'),
-                                                                                                                (7, 'researcher@sri.example', 'pw_hash_user_07', ARRAY['USER']::USER_ROLE[], '오연구', '010-1000-0007', '연구 담당', 6, 'en', 'Asia/Seoul'),
-                                                                                                                (8, 'bd@mbdc.example', 'pw_hash_user_08', ARRAY['USER']::USER_ROLE[], '한생태', '010-1000-0008', '생물다양성 센터', 8, 'ko', 'Asia/Seoul'),
-                                                                                                                (9, 'volunteer@greensteps.org', 'pw_hash_user_09', ARRAY['USER']::USER_ROLE[], '서봉사', '010-1000-0009', 'NGO 자원봉사자', 3, 'ko', 'Asia/Seoul'),
-                                                                                                                (10, 'lead@greensteps.org', 'pw_hash_user_10', ARRAY['USER']::USER_ROLE[], '문리드', '010-1000-0010', '캠페인 리드', 3, 'en', 'Asia/Seoul'),
-                                                                                                                (11, 'asset@haneulam.example', 'pw_hash_user_11', ARRAY['USER']::USER_ROLE[], '배자산', '010-1000-0011', '자산 가치 개선 담당', 4, 'ko', 'Asia/Seoul'),
-                                                                                                                (12, 'consultant@solo.example', 'pw_hash_user_12', ARRAY['USER']::USER_ROLE[], '장컨설턴트', '010-1000-0012', '1인 컨설팅', 9, 'ko', 'Asia/Seoul'),
-                                                                                                                (13, 'qa@naturex.example', 'pw_hash_user_13', ARRAY['USER']::USER_ROLE[], '고테스트', '010-1000-0013', '품질/검증', 1, 'ko', 'Asia/Seoul'),
-                                                                                                                (14, 'support@urbanpulse.example', 'pw_hash_user_14', ARRAY['USER']::USER_ROLE[], '신지원', '010-1000-0014', '고객 지원', 7, 'ko', 'Asia/Seoul'),
-                                                                                                                (15, 'archived@archived-demo.example', 'pw_hash_user_15', ARRAY['USER']::USER_ROLE[], '폐기계정', '010-1000-0015', '아카이브 조직 사용자', 10, 'ko', 'Asia/Seoul');
+                                                                                                                 (1, 'admin@naturex.example', 'pw_hash_admin_01', ARRAY['ADMIN']::USER_ROLE[], '관리자', '010-1000-0001', '시스템 관리자', 1, 'ko', 'Asia/Seoul'),
+                                                                                                                 (2, 'pm@naturex.example', 'pw_hash_user_02', ARRAY['USER']::USER_ROLE[], '이프로', '010-1000-0002', '프로젝트 매니저', 1, 'ko', 'Asia/Seoul'),
+                                                                                                                 (3, 'analyst@urbanpulse.example', 'pw_hash_user_03', ARRAY['USER']::USER_ROLE[], '박분석', '010-1000-0003', '데이터 분석 담당', 7, 'ko', 'Asia/Seoul'),
+                                                                                                                 (4, 'field@ecoparkfac.example', 'pw_hash_user_04', ARRAY['USER']::USER_ROLE[], '최현장', '010-1000-0004', '현장 운영 담당', 5, 'ko', 'Asia/Seoul'),
+                                                                                                                 (5, 'ops@blueriver.go.kr', 'pw_hash_user_05', ARRAY['USER']::USER_ROLE[], '정운영', '010-1000-0005', '지자체 시설 운영', 2, 'ko', 'Asia/Seoul'),
+                                                                                                                 (6, 'planner@blueriver.go.kr', 'pw_hash_user_06', ARRAY['USER']::USER_ROLE[], '윤기획', '010-1000-0006', '정책/기획', 2, 'ko', 'Asia/Seoul'),
+                                                                                                                 (7, 'researcher@sri.example', 'pw_hash_user_07', ARRAY['USER']::USER_ROLE[], '오연구', '010-1000-0007', '연구 담당', 6, 'en', 'Asia/Seoul'),
+                                                                                                                 (8, 'bd@mbdc.example', 'pw_hash_user_08', ARRAY['USER']::USER_ROLE[], '한생태', '010-1000-0008', '생물다양성 센터', 8, 'ko', 'Asia/Seoul'),
+                                                                                                                 (9, 'volunteer@greensteps.org', 'pw_hash_user_09', ARRAY['USER']::USER_ROLE[], '서봉사', '010-1000-0009', 'NGO 자원봉사자', 3, 'ko', 'Asia/Seoul'),
+                                                                                                                 (10, 'lead@greensteps.org', 'pw_hash_user_10', ARRAY['USER']::USER_ROLE[], '문리드', '010-1000-0010', '캠페인 리드', 3, 'en', 'Asia/Seoul'),
+                                                                                                                 (11, 'asset@haneulam.example', 'pw_hash_user_11', ARRAY['USER']::USER_ROLE[], '배자산', '010-1000-0011', '자산 가치 개선 담당', 4, 'ko', 'Asia/Seoul'),
+                                                                                                                 (12, 'consultant@solo.example', 'pw_hash_user_12', ARRAY['USER']::USER_ROLE[], '장컨설턴트', '010-1000-0012', '1인 컨설팅', 9, 'ko', 'Asia/Seoul'),
+                                                                                                                 (13, 'qa@naturex.example', 'pw_hash_user_13', ARRAY['USER']::USER_ROLE[], '고테스트', '010-1000-0013', '품질/검증', 1, 'ko', 'Asia/Seoul'),
+                                                                                                                 (14, 'support@urbanpulse.example', 'pw_hash_user_14', ARRAY['USER']::USER_ROLE[], '신지원', '010-1000-0014', '고객 지원', 7, 'ko', 'Asia/Seoul'),
+                                                                                                                 (15, 'archived@archived-demo.example', 'pw_hash_user_15', ARRAY['USER']::USER_ROLE[], '폐기계정', '010-1000-0015', '아카이브 조직 사용자', 10, 'ko', 'Asia/Seoul');
 
 INSERT INTO consents (user_id, notification_email, notification_sns, marketing_email, marketing_sns) VALUES
                                                                                                          (1, TRUE, TRUE, FALSE, FALSE),
@@ -42,37 +42,37 @@ INSERT INTO consents (user_id, notification_email, notification_sns, marketing_e
                                                                                                          (12, FALSE, TRUE, FALSE, TRUE);
 
 INSERT INTO projects (id, name, description, location, theme, organization_id, manager_id, current_status_log_id) VALUES
-                                                                                                                    (1, '시설 에너지 최적화 1차', '전력 사용 패턴 분석 기반 운영비 절감', '충북 청주 A캠퍼스', 'EFFICIENCY', 2, 5, NULL),
-                                                                                                                    (2, '도시 공원 생물다양성 모니터링', '종 다양성 지표 수집·시각화', '세종 중앙공원', 'BIODIVERSITY', 8, 8, NULL),
-                                                                                                                    (3, '자산 가치 향상 리모델링 우선순위', '시설물 상태 점검 데이터를 기반으로 투자 우선순위 도출', '서울 강남 B빌딩', 'ASSET', 4, 11, NULL),
-                                                                                                                    (4, '현장 민원 대응 자동화', '이메일/AI 문의 분류 및 응답 자동화', '대전 시청', 'EFFICIENCY', 2, 6, NULL),
-                                                                                                                    (5, '녹지 관리 비용 절감', '잔디/관목 관리 주기 최적화', '인천 C공원', 'EFFICIENCY', 5, 4, NULL),
-                                                                                                                    (6, '데이터 대시보드 PoC', '조직별 프로젝트 KPI 대시보드 구축', '원격(온라인)', 'ASSET', 7, 3, NULL),
-                                                                                                                    (7, '유휴자산 활용 컨설팅', '유휴 공간 활용 시나리오 작성', '부산 D센터', 'ASSET', 9, 12, NULL),
-                                                                                                                    (8, 'NGO 캠페인 성과 분석', '참여자 데이터 기반 성과 측정', '서울', 'BIODIVERSITY', 3, 10, NULL),
-                                                                                                                    (9, '시설 안전 점검 고도화', '보안/안전 관련 알림 체계 정비', '청주 산업단지', 'EFFICIENCY', 1, 2, NULL),
-                                                                                                                    (10, '생태 데이터 표준화', '현장 수집 데이터 스키마 통합', '강원 E보호구역', 'BIODIVERSITY', 6, 7, NULL),
-                                                                                                                    (11, '에너지 절감 시뮬레이션', '설비 교체 시나리오별 비용 추정', '광주 F단지', 'EFFICIENCY', 1, 13, NULL),
-                                                                                                                    (12, '아카이브 데모 프로젝트', '테스트/아카이브 용도', '테스트 지역', 'EFFICIENCY', 10, 15, NULL);
+                                                                                                                      (1, '시설 에너지 최적화 1차', '전력 사용 패턴 분석 기반 운영비 절감', '충북 청주 A캠퍼스', 'EFFICIENCY', 2, 5, NULL),
+                                                                                                                      (2, '도시 공원 생물다양성 모니터링', '종 다양성 지표 수집·시각화', '세종 중앙공원', 'BIODIVERSITY', 8, 8, NULL),
+                                                                                                                      (3, '자산 가치 향상 리모델링 우선순위', '시설물 상태 점검 데이터를 기반으로 투자 우선순위 도출', '서울 강남 B빌딩', 'ASSET', 4, 11, NULL),
+                                                                                                                      (4, '현장 민원 대응 자동화', '이메일/AI 문의 분류 및 응답 자동화', '대전 시청', 'EFFICIENCY', 2, 6, NULL),
+                                                                                                                      (5, '녹지 관리 비용 절감', '잔디/관목 관리 주기 최적화', '인천 C공원', 'EFFICIENCY', 5, 4, NULL),
+                                                                                                                      (6, '데이터 대시보드 PoC', '조직별 프로젝트 KPI 대시보드 구축', '원격(온라인)', 'ASSET', 7, 3, NULL),
+                                                                                                                      (7, '유휴자산 활용 컨설팅', '유휴 공간 활용 시나리오 작성', '부산 D센터', 'ASSET', 9, 12, NULL),
+                                                                                                                      (8, 'NGO 캠페인 성과 분석', '참여자 데이터 기반 성과 측정', '서울', 'BIODIVERSITY', 3, 10, NULL),
+                                                                                                                      (9, '시설 안전 점검 고도화', '보안/안전 관련 알림 체계 정비', '청주 산업단지', 'EFFICIENCY', 1, 2, NULL),
+                                                                                                                      (10, '생태 데이터 표준화', '현장 수집 데이터 스키마 통합', '강원 E보호구역', 'BIODIVERSITY', 6, 7, NULL),
+                                                                                                                      (11, '에너지 절감 시뮬레이션', '설비 교체 시나리오별 비용 추정', '광주 F단지', 'EFFICIENCY', 1, 13, NULL),
+                                                                                                                      (12, '아카이브 데모 프로젝트', '테스트/아카이브 용도', '테스트 지역', 'EFFICIENCY', 10, 15, NULL);
 
 INSERT INTO project_status_logs (id, project_id, status, changed_by, description, created_at) VALUES
-                                                                                                  (1, 1, 'REGISTERED', 5, '요청 접수 및 범위 정의 완료', '2026-01-03 10:15:00+09'),
+                                                                                                  (1, 1, 'PENDING', 5, '요청 접수 및 범위 정의 완료', '2026-01-03 10:15:00+09'),
                                                                                                   (2, 1, 'ANALYZING', 2, '데이터 수집 채널 확정(전력계/EMS)', '2026-01-05 14:20:00+09'),
-                                                                                                  (3, 2, 'REGISTERED', 8, '현장 조사 일정 수립 및 협업기관 확정', '2026-01-04 09:00:00+09'),
+                                                                                                  (3, 2, 'PENDING', 8, '현장 조사 일정 수립 및 협업기관 확정', '2026-01-04 09:00:00+09'),
                                                                                                   (4, 2, 'ANALYZING', 8, '1차 샘플링 구간 선정 및 기준 합의', '2026-01-10 16:40:00+09'),
                                                                                                   (5, 3, 'ANALYZING', 11, '시설 점검 체크리스트 공유 및 검토', '2026-01-06 11:05:00+09'),
                                                                                                   (6, 3, 'ANALYZING', 11, '리모델링 후보군 1차 산출', '2026-01-12 18:10:00+09'),
                                                                                                   (7, 4, 'ANALYZING', 6, '문의 유형 정의 및 라벨링 규칙 작성', '2026-01-08 13:30:00+09'),
-                                                                                                  (8, 4, 'PROVIDING', 14, '응답 템플릿 초안 작성(FAQ 포함)', '2026-01-14 09:25:00+09'),
-                                                                                                  (9, 5, 'COMPLETED', 4, '유지관리 주기 데이터 정리 완료', '2026-01-07 15:00:00+09'),
+                                                                                                  (8, 4, 'DELIVERING', 14, '응답 템플릿 초안 작성(FAQ 포함)', '2026-01-14 09:25:00+09'),
+                                                                                                  (9, 5, 'EXECUTING', 4, '유지관리 주기 데이터 정리 완료', '2026-01-07 15:00:00+09'),
                                                                                                   (10, 6, 'ANALYZING', 3, '대시보드 KPI 초안 합의', '2026-01-09 10:50:00+09'),
-                                                                                                  (11, 6, 'PROVIDING', 3, '시각화 컴포넌트 PoC 완료', '2026-01-16 17:35:00+09'),
+                                                                                                  (11, 6, 'DELIVERING', 3, '시각화 컴포넌트 PoC 완료', '2026-01-16 17:35:00+09'),
                                                                                                   (12, 7, 'ANALYZING', 12, '현장 인터뷰 진행 및 요구사항 수집', '2026-01-11 12:00:00+09'),
                                                                                                   (13, 8, 'ANALYZING', 10, '참여자 데이터 정제(중복 제거)', '2026-01-13 14:45:00+09'),
                                                                                                   (14, 9, 'ANALYZING', 2, '보안 알림 채널 정책 검토 시작', '2026-01-15 09:10:00+09'),
-                                                                                                  (15, 10, 'PROVIDING', 7, '표준 스키마 v0.1 작성 및 공유', '2026-01-17 16:00:00+09'),
-                                                                                                  (16, 11, 'REGISTERED', 13, '프로젝트 초기 등록', '2026-02-01 13:00:00+09'),
-                                                                                                  (17, 12, 'REGISTERED', 15, '프로젝트 초기 등록', '2026-02-12 12:00:00+09');
+                                                                                                  (15, 10, 'DELIVERING', 7, '표준 스키마 v0.1 작성 및 공유', '2026-01-17 16:00:00+09'),
+                                                                                                  (16, 11, 'PENDING', 13, '프로젝트 초기 등록', '2026-02-01 13:00:00+09'),
+                                                                                                  (17, 12, 'PENDING', 15, '프로젝트 초기 등록', '2026-02-12 12:00:00+09');
 
 UPDATE projects SET current_status_log_id = 2  WHERE id = 1;
 UPDATE projects SET current_status_log_id = 4  WHERE id = 2;

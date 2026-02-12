@@ -28,10 +28,10 @@ export class AppController {
   @Get()
   async testPostgres() {
     const res = await this.pgService.sql`
-        SELECT theme, status, COUNT(*)::int AS count
-        FROM projects JOIN project_status_logs 
-        ON projects.current_status_log_id = project_status_logs.id 
-        GROUP BY projects.theme, project_status_logs.status`;
+      SELECT p.organization_id, p.theme, s.status, COUNT(*)::INT AS count
+      FROM projects AS p JOIN project_status_logs AS s
+      ON p.current_status_log_id = s.id
+      GROUP BY p.organization_id, p.theme, s.status`;
     return res;
   }
 }

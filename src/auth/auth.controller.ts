@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -15,6 +16,7 @@ import { Public, UserRoles } from './guards/jwt-access.guard.js';
 import { OrganizationsService } from '../organizations/organizations.service.js';
 import { UserRole } from '../users/users.service.js';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard.js';
+import type { RequestWithUser } from '../users/users.controller.js';
 
 @Controller('auth')
 export class AuthController {
@@ -22,6 +24,12 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly organizationsService: OrganizationsService,
   ) {}
+
+  @UserRoles(UserRole.ADMIN, UserRole.USER)
+  @Get('me')
+  getMe(@Req() req: RequestWithUser) {
+    return req.user;
+  }
 
   @Public()
   @HttpCode(HttpStatus.CREATED)
@@ -50,8 +58,7 @@ export class AuthController {
       timezone: body.timezone as string | undefined | null,
     };
 
-    const { access_token, refresh_token, user } =
-      await this.authService.signUp(obj);
+    const { access_token, refresh_token } = await this.authService.signUp(obj);
 
     res.cookie('access_token', access_token, {
       httpOnly: true,
@@ -69,7 +76,7 @@ export class AuthController {
       maxAge: Number(process.env.JWT_ACCESS_EXPIRATION),
     });
 
-    return user;
+    return null;
   }
 
   @Public()
@@ -80,7 +87,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
     @Req() req: Request,
   ) {
-    const { access_token, refresh_token, user } = await this.authService.login(
+    const { access_token, refresh_token } = await this.authService.login(
       loginDTO.email,
       loginDTO.password,
       { userAgent: req.get('user-agent'), ip: req.ip },
@@ -102,7 +109,7 @@ export class AuthController {
       maxAge: Number(process.env.JWT_ACCESS_EXPIRATION),
     });
 
-    return user;
+    return null;
   }
 
   @Public()

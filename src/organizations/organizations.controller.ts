@@ -5,8 +5,10 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseBoolPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 
 import { OrganizationsService, Organization } from './organizations.service.js';
@@ -19,13 +21,18 @@ export class OrganizationsController {
 
   @UserRoles(UserRole.ADMIN)
   @Get()
-  async getAllOrganizations(): Promise<Organization[]> {
-    return this.organizationsService.findAll();
+  async getOrganizations(
+    @Query('organizationId')
+    organizationId: string | string[] | null | undefined,
+    @Query('exclude', new ParseBoolPipe({ optional: true }))
+    exclude: boolean = false,
+  ): Promise<Organization[]> {
+    return this.organizationsService.find(organizationId, exclude);
   }
 
   @UserRoles(UserRole.ADMIN)
   @Get('count')
-  async getOrganizationsCount(): Promise<string> {
+  async getOrganizationsCount(): Promise<number> {
     return await this.organizationsService.count();
   }
 
@@ -57,17 +64,16 @@ export class OrganizationsController {
   }
 
   @UserRoles(UserRole.ADMIN)
-  @Patch()
+  @Patch(':organizationId')
   async updateOrganization(
+    @Param('organizationId') organizationId: string,
     @Body() body: Record<string, any>,
   ): Promise<Organization> {
-    const existed = await this.organizationsService.findOneById(
-      body.id as string,
-    );
+    const existed = await this.organizationsService.findOneById(organizationId);
     if (!existed) throw new NotFoundException('Organization not found');
 
     const obj = {
-      id: body.id as string,
+      id: organizationId,
       name: body.name as string | undefined | null,
       type: body.type as Organization['type'] | undefined | null,
       size: body.size as Organization['size'] | undefined | null,
@@ -80,8 +86,8 @@ export class OrganizationsController {
   }
 
   @UserRoles(UserRole.ADMIN)
-  @Delete()
-  async deleteOrganization(@Body() body: Record<string, any>) {
-    await this.organizationsService.deleteOne(body.id as string);
+  @Delete(':organizationId')
+  async deleteOrganization(@Param('organizationId') organizationId: string) {
+    await this.organizationsService.deleteOne(organizationId);
   }
 }

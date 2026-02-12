@@ -1,14 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { PostgresService } from '../postgres.service.js';
+import { isArray } from 'class-validator';
 
-export type ProjectTheme = 'EFFICIENCY' | 'ASSET' | 'BIODIVERSITY';
+export enum ProjectTheme {
+  EFFICIENCY = 'efficiency',
+  ASSET = 'asset',
+  BIODIVERSITY = 'biodiversity',
+}
 
-export type ProjectStatus =
-  | 'REGISTERED'
-  | 'ANALYZING'
-  | 'PROVIDING'
-  | 'COMPLETED'
-  | 'PAUSED';
+export enum ProjectStatus {
+  PENDING = 'pending',
+  ANALYZING = 'analyzing',
+  DELIVERING = 'delivering',
+  EXECUTING = 'executing',
+  COMPLETED = 'completed',
+}
 
 export class ProjectStatusLog {
   id!: string;
@@ -65,31 +71,92 @@ export class ProjectsService {
   constructor(private readonly pgService: PostgresService) {}
 
   async findAll(): Promise<Project[]> {
-    const res = await this.pgService.sql`
+    const res = (await this.pgService.sql`
           SELECT 
             row_to_json(projects) AS project, 
             row_to_json(project_status_logs) AS project_status_log
           FROM projects JOIN project_status_logs 
-          ON projects.current_status_log_id = project_status_logs.id`;
+          ON projects.current_status_log_id = project_status_logs.id`) as {
+      project: Omit<Project, 'currentStatus'>;
+      projectStatusLog: { status: ProjectStatus };
+    }[];
     return res.map((row) => {
-      const o = { ...row.project, currentStatus: row.projectStatusLog.status };
-      return new Project(o as Project);
+      const o = {
+        ...row.project,
+        currentStatus: row.projectStatusLog.status,
+      };
+      return new Project(o);
     });
   }
 
-  async count(): Promise<string> {
-    const res = await this.pgService.sql`SELECT COUNT(*) FROM projects`;
-    return res.at(0)!.count;
+  async count(): Promise<number> {
+    const res = await this.pgService.sql`SELECT COUNT(*)::INT FROM projects`;
+    return res.at(0)!.count as number;
   }
 
-  async overview(): Promise<
-    { theme: ProjectTheme; status: ProjectStatus; count: string }[]
-  > {
-    return await this.pgService.sql`
-        SELECT theme, status, COUNT(*)::INT AS count 
-        FROM projects JOIN project_status_logs 
-        ON projects.current_status_log_id = project_status_logs.id 
-        GROUP BY projects.theme, project_status_logs.status`;
+  async countGroupByThemeAndStatus(
+    organizationId: string | string[] | undefined | null,
+    exclude: boolean | undefined | null,
+  ) {
+    let res = (await this.pgService.sql`
+        SELECT p.organization_id, p.theme, s.status, COUNT(*)::INT AS count 
+        FROM projects AS p JOIN project_status_logs AS s
+        ON p.current_status_log_id = s.id
+        GROUP BY p.organization_id, p.theme, s.status`) as {
+      organizationId: string;
+      theme: ProjectTheme;
+      status: ProjectStatus;
+      count: number;
+    }[];
+
+    const result = [] as {
+      organizationId: string | null;
+      total: number;
+      value: { theme: ProjectTheme; status: ProjectStatus; count: number }[];
+    }[];
+    let predicates = isArray(organizationId)
+      ? organizationId
+      : [organizationId ?? null];
+    if (exclude) {
+      res = res.filter((e) => !predicates.includes(e.organizationId));
+      predicates = [null];
+    }
+
+    for (const predicate of predicates) {
+      const r = res.filter((e) =>
+        predicate ? e.organizationId == predicate : true,
+      );
+      const value = [] as {
+        theme: ProjectTheme;
+        status: ProjectStatus;
+        count: number;
+      }[];
+      let total = 0;
+      for (const e of r) {
+        let flag = true;
+        for (const v of value) {
+          if (v.theme == e.theme && v.status == e.status) {
+            v.count += e.count;
+            flag = false;
+            break;
+          }
+        }
+        if (flag) {
+          value.push({
+            theme: e.theme,
+            status: e.status,
+            count: e.count,
+          });
+        }
+        total += e.count;
+      }
+      result.push({
+        organizationId: predicate,
+        total: total,
+        value: value,
+      });
+    }
+    return result;
   }
 
   async findOneById(id: string): Promise<Project | null> {

@@ -5,8 +5,10 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseBoolPipe,
   Patch,
   Post,
+  Query,
   Req,
 } from '@nestjs/common';
 
@@ -32,14 +34,22 @@ export class ProjectsController {
 
   @UserRoles(UserRole.ADMIN)
   @Get('count')
-  async getProjectsCount(): Promise<string> {
+  async getProjectsCount(): Promise<number> {
     return await this.projectsService.count();
   }
 
   @UserRoles(UserRole.ADMIN)
-  @Get('overview')
-  async getOverview() {
-    return await this.projectsService.overview();
+  @Get('countGroupByThemeAndStatus')
+  async getProjectsCountGroupByThemeAndStatus(
+    @Query('organizationId')
+    organizationId: string | string[] | null | undefined,
+    @Query('exclude', new ParseBoolPipe({ optional: true }))
+    exclude: boolean = false,
+  ) {
+    return await this.projectsService.countGroupByThemeAndStatus(
+      organizationId,
+      exclude,
+    );
   }
 
   // @UserRoles(UserRole.USER)

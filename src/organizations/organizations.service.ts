@@ -4,6 +4,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { PostgresService } from '../postgres.service.js';
+import { isArray } from 'class-validator';
 
 export class Organization {
   public id!: string;
@@ -13,6 +14,7 @@ export class Organization {
   public contact!: string | null;
   public website!: string | null;
   public status!: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
+  public createdAt!: Date;
 
   constructor(org: {
     id: string;
@@ -22,6 +24,7 @@ export class Organization {
     contact: string | null;
     website: string | null;
     status: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
+    createdAt: Date;
   }) {
     this.id = org.id;
     this.name = org.name;
@@ -30,6 +33,7 @@ export class Organization {
     this.contact = org.contact;
     this.website = org.website;
     this.status = org.status;
+    this.createdAt = org.createdAt;
   }
 }
 
@@ -37,14 +41,32 @@ export class Organization {
 export class OrganizationsService {
   constructor(private readonly pgService: PostgresService) {}
 
-  async findAll(): Promise<Organization[]> {
-    const res = await this.pgService.sql`SELECT * FROM organizations`;
+  async find(
+    organizationId: string | string[] | undefined | null,
+    exclude?: boolean | null,
+  ): Promise<Organization[]> {
+    const predicate = organizationId
+      ? isArray(organizationId)
+        ? organizationId
+        : [organizationId]
+      : null;
+    const res = await this.pgService.sql`
+      SELECT * 
+      FROM organizations 
+        ${
+          predicate
+            ? this.pgService
+                .sql`WHERE id ${exclude ? 'NOT' : ''} IN ${predicate}`
+            : this.pgService.sql``
+        }
+    `;
     return res.map((row) => new Organization(row as Organization));
   }
 
-  async count(): Promise<string> {
-    const res = await this.pgService.sql`SELECT COUNT(*) FROM organizations`;
-    return res.at(0)!.count;
+  async count(): Promise<number> {
+    const res = await this.pgService
+      .sql`SELECT COUNT(*)::INT FROM organizations`;
+    return res.at(0)!.count as number;
   }
 
   async findOneByName(name: string): Promise<Organization | null> {
