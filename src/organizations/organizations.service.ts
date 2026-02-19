@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PostgresService } from '../postgres.service.js';
 import { isArray } from 'class-validator';
 
@@ -120,32 +116,28 @@ export class OrganizationsService {
 
   async updateOne(
     org: Pick<Organization, 'id'> & {
-      name?: string | undefined | null;
       type?: Organization['type'] | undefined | null;
       size?: Organization['size'] | undefined | null;
+      contact?: string | undefined | null;
       website?: string | undefined | null;
       status?: Organization['status'] | undefined | null;
     },
   ): Promise<Organization> {
     const sanitizedOrg = {
       ...org,
-      name: org.name ?? null,
       type: org.type ?? null,
       size: org.size ?? null,
+      contact: org.contact ?? null,
       website: org.website ?? null,
       status: org.status ?? null,
     };
     const sql = this.pgService.sql;
 
-    if (sanitizedOrg.name && (await this.findOneByName(sanitizedOrg.name))) {
-      throw new ForbiddenException('same name already exists');
-    }
-
     const res = await sql`UPDATE organizations SET ${sql(sanitizedOrg, [
-      ...(org.name ? ['name'] : []),
       ...(org.type ? ['type'] : []),
       ...(org.size ? ['size'] : []),
-      'website',
+      ...(org.contact ? ['contact'] : []),
+      ...(org.website ? ['website'] : []),
       ...(org.status ? ['status'] : []),
     ] as any[])} WHERE id = ${org.id}
   RETURNING *`;

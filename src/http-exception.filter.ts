@@ -14,12 +14,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const originalUrl = request.originalUrl;
     const routePath = request.route?.path;
 
-    console.error(`[trace] ${exception.stack}`);
     console.error(
-      `[HTTP EXCEPTION] ${method} ${originalUrl}` +
+      `[${new Date().toLocaleString()}][HTTP EXCEPTION] ${method} ${originalUrl}` +
         (routePath ? ` (route: ${routePath})` : ''),
     );
     console.error(`→ status: ${status}, message: ${exception}`);
+    console.error(`[trace] ${exception.stack}`);
 
     response.status(status).json();
   }

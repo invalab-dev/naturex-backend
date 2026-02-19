@@ -7,8 +7,8 @@ CREATE TABLE IF NOT EXISTS organizations (
     name        VARCHAR(255) NOT NULL UNIQUE,
     type        ORGANIZATION_TYPE NOT NULL,
     size        ORGANIZATION_SIZE NOT NULL,
-    contact     VARCHAR(255),
-    website     VARCHAR(255),
+    contact     VARCHAR(255) NOT NULL DEFAULT '',
+    website     VARCHAR(255) NOT NULL DEFAULT '',
     status      ORGANIZATION_STATUS NOT NULL DEFAULT 'ACTIVE',
 
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),

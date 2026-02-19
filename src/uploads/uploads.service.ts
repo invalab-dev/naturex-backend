@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   Injectable,
-  NotFoundException,
 } from '@nestjs/common';
 import { StorageService } from '../storage.service.js';
 import { PostgresService } from '../postgres.service.js';

@@ -31,6 +31,15 @@ export class OrganizationsController {
   }
 
   @UserRoles(UserRole.ADMIN)
+  @Get('existence')
+  async getExistenceByName(@Query('name') name: string) {
+    const org = await this.organizationsService.findOneByName(name);
+    return {
+      existence: !!org,
+    };
+  }
+
+  @UserRoles(UserRole.ADMIN)
   @Get('count')
   async getOrganizationsCount(): Promise<number> {
     return await this.organizationsService.count();
@@ -74,7 +83,6 @@ export class OrganizationsController {
 
     const obj = {
       id: organizationId,
-      name: body.name as string | undefined | null,
       type: body.type as Organization['type'] | undefined | null,
       size: body.size as Organization['size'] | undefined | null,
       contact: body.contact as string | undefined | null,
