@@ -35,7 +35,7 @@ export class ProjectsController {
   @UserRoles(UserRole.ADMIN)
   @Get('count')
   async getProjectsCount(): Promise<number> {
-    return await this.projectsService.count();
+    return await this.projectsService.countAll();
   }
 
   @UserRoles(UserRole.ADMIN)

@@ -12,16 +12,7 @@ export class Organization {
   public status!: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
   public createdAt!: Date;
 
-  constructor(org: {
-    id: string;
-    name: string;
-    type: 'COMPANY' | 'PUBLIC' | 'NGO';
-    size: 'SOLO' | 'SMALL' | 'MEDIUM' | 'ENTERPRISE';
-    contact: string | null;
-    website: string | null;
-    status: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
-    createdAt: Date;
-  }) {
+  constructor(org: Organization) {
     this.id = org.id;
     this.name = org.name;
     this.type = org.type;

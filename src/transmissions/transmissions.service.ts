@@ -1,13 +1,10 @@
-import {
-  BadRequestException,
-  Injectable,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { StorageService } from '../storage.service.js';
 import { PostgresService } from '../postgres.service.js';
-import { FileMetadata } from './uploads.type.js';
+import { FileMetadata } from './transmissions.type.js';
 
 @Injectable()
-export class UploadsService {
+export class TransmissionsService {
   private readonly partSizeBytes = 64 * 1024 * 1024; // 64MB
   private readonly sessionTtlMs = 6 * 60 * 60 * 1000; // 6h
 

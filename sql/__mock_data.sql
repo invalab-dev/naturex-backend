@@ -1,14 +1,15 @@
-INSERT INTO organizations (id, name, type, size, website, status) VALUES
-                                                                      (1, 'NatureX Lab', 'COMPANY', 'SMALL', 'https://naturex.example', 'ACTIVE'),
-                                                                      (2, 'BlueRiver City Hall', 'PUBLIC', 'ENTERPRISE', 'https://blueriver.go.kr', 'ACTIVE'),
-                                                                      (3, 'GreenSteps NGO', 'NGO', 'MEDIUM', 'https://greensteps.org', 'ACTIVE'),
-                                                                      (4, 'Haneul Asset Management', 'COMPANY', 'MEDIUM', 'https://haneulam.example', 'INACTIVE'),
-                                                                      (5, 'EcoPark Facilities', 'COMPANY', 'SMALL', 'https://ecoparkfac.example', 'ACTIVE'),
-                                                                      (6, 'Sejong Research Institute', 'PUBLIC', 'MEDIUM', 'https://sri.example', 'ACTIVE'),
-                                                                      (7, 'UrbanPulse Analytics', 'COMPANY', 'SMALL', 'https://urbanpulse.example', 'ACTIVE'),
-                                                                      (8, 'Mirae BioDiversity Center', 'PUBLIC', 'MEDIUM', 'https://mbdc.example', 'ACTIVE'),
-                                                                      (9, 'Solitary Consultant Office', 'COMPANY', 'SOLO', NULL, 'ACTIVE'),
-                                                                      (10, 'Archived Demo Org', 'NGO', 'SMALL', 'https://archived-demo.example', 'ARCHIVED');
+INSERT INTO organizations (id, name, type, size, contact, website, status) VALUES
+                                                                      (1, 'NatureX Lab', 'COMPANY', 'SMALL', null, 'https://naturex.example', 'ACTIVE'),
+                                                                      (2, 'BlueRiver City Hall', 'PUBLIC', 'ENTERPRISE', null, 'https://blueriver.go.kr', 'ACTIVE'),
+                                                                      (3, 'GreenSteps NGO', 'NGO', 'MEDIUM', null, 'https://greensteps.org', 'ACTIVE'),
+                                                                      (4, 'Haneul Asset Management', 'COMPANY', 'MEDIUM', null, 'https://haneulam.example', 'INACTIVE'),
+                                                                      (5, 'EcoPark Facilities', 'COMPANY', 'SMALL', null, 'https://ecoparkfac.example', 'ACTIVE'),
+                                                                      (6, 'Sejong Research Institute', 'PUBLIC', 'MEDIUM', null, 'https://sri.example', 'ACTIVE'),
+                                                                      (7, 'UrbanPulse Analytics', 'COMPANY', 'SMALL', null, 'https://urbanpulse.example', 'ACTIVE'),
+                                                                      (8, 'Mirae BioDiversity Center', 'PUBLIC', 'MEDIUM', null, 'https://mbdc.example', 'ACTIVE'),
+                                                                      (9, 'Solitary Consultant Office', 'COMPANY', 'SOLO', null, null, 'ACTIVE'),
+                                                                      (10, 'Archived Demo Org', 'NGO', 'SMALL', null, 'https://archived-demo.example', 'ARCHIVED');
+ALTER SEQUENCE organizations_id_seq RESTART WITH 11;
 
 INSERT INTO users (id, email, password, roles, name, phone_number, bio, organization_id, language, timezone) VALUES
                                                                                                                  (1, 'admin@naturex.example', 'pw_hash_admin_01', ARRAY['ADMIN']::USER_ROLE[], '관리자', '010-1000-0001', '시스템 관리자', 1, 'ko', 'Asia/Seoul'),
@@ -54,6 +55,7 @@ INSERT INTO projects (id, name, description, location, theme, organization_id, m
                                                                                                                       (10, '생태 데이터 표준화', '현장 수집 데이터 스키마 통합', '강원 E보호구역', 'BIODIVERSITY', 6, 7, NULL),
                                                                                                                       (11, '에너지 절감 시뮬레이션', '설비 교체 시나리오별 비용 추정', '광주 F단지', 'EFFICIENCY', 1, 13, NULL),
                                                                                                                       (12, '아카이브 데모 프로젝트', '테스트/아카이브 용도', '테스트 지역', 'EFFICIENCY', 10, 15, NULL);
+ALTER SEQUENCE projects_id_seq RESTART WITH 13;
 
 INSERT INTO project_status_logs (id, project_id, status, changed_by, description, created_at) VALUES
                                                                                                   (1, 1, 'PENDING', 5, '요청 접수 및 범위 정의 완료', '2026-01-03 10:15:00+09'),
@@ -73,6 +75,7 @@ INSERT INTO project_status_logs (id, project_id, status, changed_by, description
                                                                                                   (15, 10, 'DELIVERING', 7, '표준 스키마 v0.1 작성 및 공유', '2026-01-17 16:00:00+09'),
                                                                                                   (16, 11, 'PENDING', 13, '프로젝트 초기 등록', '2026-02-01 13:00:00+09'),
                                                                                                   (17, 12, 'PENDING', 15, '프로젝트 초기 등록', '2026-02-12 12:00:00+09');
+ALTER SEQUENCE project_status_logs_id_seq RESTART WITH 18;
 
 UPDATE projects SET current_status_log_id = 2  WHERE id = 1;
 UPDATE projects SET current_status_log_id = 4  WHERE id = 2;

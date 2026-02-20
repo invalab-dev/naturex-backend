@@ -27,6 +27,43 @@ export class AuthService {
     });
   }
 
+  async login(
+    email: string,
+    password: string,
+    meta?: { userAgent?: string | null; ip?: string | null } | null,
+  ) {
+    const user = await this.usersService.findOneByEmail(email);
+
+    if (!user || user?.password !== password) {
+      return {
+        success: false,
+        access_token: null,
+        refresh_token: null,
+      };
+    }
+
+    const sessionId = randomUUID();
+    const refreshToken = await this.signRefreshToken(user, sessionId);
+    const refreshHash = hashTokenToHex(refreshToken);
+
+    await this.authSessionsService.createOne({
+      id: sessionId,
+      userId: String(user.id),
+      refreshTokenHash: refreshHash,
+      expiresAt: new Date(
+        Date.now() + Number(process.env.JWT_REFRESH_EXPIRATION),
+      ),
+      userAgent: meta?.userAgent ?? null,
+      ip: meta?.ip ?? null,
+    });
+    const accessToken = await this.signAccessToken(user, sessionId);
+    return {
+      success: true,
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    };
+  }
+
   private async signRefreshToken(user: User, sessionId: string) {
     const payload = {
       sub: String(user.id),
@@ -53,7 +90,6 @@ export class AuthService {
   ): Promise<{
     access_token: string;
     refresh_token: string;
-    user: Omit<User, 'password'>;
   }> {
     const user = await this.usersService.createOne(userDTO);
 
@@ -73,50 +109,9 @@ export class AuthService {
     });
 
     const accessToken = await this.signAccessToken(user, sessionId);
-    const insensitiveUser = this.usersService.toInsensitiveUser(user);
-
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
-      user: insensitiveUser,
-    };
-  }
-
-  async login(
-    email: string,
-    password: string,
-    meta?: { userAgent?: string | null; ip?: string | null } | null,
-  ): Promise<{
-    access_token: string;
-    refresh_token: string;
-    user: Omit<User, 'password'>;
-  }> {
-    const user = await this.usersService.findOneByEmail(email);
-
-    if (!user || user?.password !== password) {
-      throw new UnauthorizedException();
-    }
-
-    const sessionId = randomUUID();
-    const refreshToken = await this.signRefreshToken(user, sessionId);
-    const refreshHash = hashTokenToHex(refreshToken);
-
-    await this.authSessionsService.createOne({
-      id: sessionId,
-      userId: String(user.id),
-      refreshTokenHash: refreshHash,
-      expiresAt: new Date(
-        Date.now() + Number(process.env.JWT_REFRESH_EXPIRATION),
-      ),
-      userAgent: meta?.userAgent ?? null,
-      ip: meta?.ip ?? null,
-    });
-    const accessToken = await this.signAccessToken(user, sessionId);
-    const insensitiveUser = this.usersService.toInsensitiveUser(user);
-    return {
-      access_token: accessToken,
-      refresh_token: refreshToken,
-      user: insensitiveUser,
     };
   }
 

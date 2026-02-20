@@ -18,18 +18,7 @@ export class User {
   public language!: string;
   public timezone!: string;
 
-  constructor(user: {
-    id: string;
-    email: string;
-    password: string;
-    roles: UserRole[];
-    name: string | null;
-    phoneNumber: string | null;
-    bio: string | null;
-    organizationId: string | null;
-    language: string;
-    timezone: string;
-  }) {
+  constructor(user: User) {
     this.id = user.id;
     this.email = user.email;
     this.password = user.password;

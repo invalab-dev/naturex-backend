@@ -1,10 +1,10 @@
 import { Body, Controller, Param, Post, Query, Req } from '@nestjs/common';
-import { UploadsService } from './uploads.service.js';
-import { FileMetadata } from './uploads.type.js';
+import { TransmissionsService } from './transmissions.service.js';
+import { FileMetadata } from './transmissions.type.js';
 
-@Controller('uploads/')
-export class UploadsController {
-  constructor(private readonly uploadsService: UploadsService) {}
+@Controller('transmissions/')
+export class TransmissionsController {
+  constructor(private readonly uploadsService: TransmissionsService) {}
 
   @Post('prepare')
   prepare(@Req() req, @Body() dto: FileMetadata & { projectId: string }) {

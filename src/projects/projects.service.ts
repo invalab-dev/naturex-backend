@@ -17,17 +17,12 @@ export enum ProjectStatus {
 }
 
 export class ProjectStatusLog {
-  id!: string;
-  status!: ProjectStatus;
-  changedBy!: string;
-  description!: string | undefined | null;
+  public id!: string;
+  public status!: ProjectStatus;
+  public changedBy!: string;
+  public description!: string | undefined | null;
 
-  constructor(statusLog: {
-    id: string;
-    status: ProjectStatus;
-    changedBy: string;
-    description: string | undefined | null;
-  }) {
+  constructor(statusLog: ProjectStatusLog) {
     this.id = statusLog.id;
     this.status = statusLog.status;
     this.changedBy = statusLog.changedBy;
@@ -45,16 +40,7 @@ export class Project {
   public managerId!: string | null;
   public currentStatus!: ProjectStatus;
 
-  constructor(project: {
-    id: string;
-    name: string;
-    description: string | null;
-    location: string | null;
-    theme: ProjectTheme;
-    organizationId: string | null;
-    managerId: string | null;
-    currentStatus: ProjectStatus;
-  }) {
+  constructor(project: Project) {
     this.id = project.id;
     this.name = project.name;
     this.description = project.description;
@@ -70,6 +56,7 @@ export class Project {
 export class ProjectsService {
   constructor(private readonly pgService: PostgresService) {}
 
+  // TODO: pagination 구현 필요
   async findAll(): Promise<Project[]> {
     const res = (await this.pgService.sql`
           SELECT 
@@ -89,7 +76,7 @@ export class ProjectsService {
     });
   }
 
-  async count(): Promise<number> {
+  async countAll(): Promise<number> {
     const res = await this.pgService.sql`SELECT COUNT(*)::INT FROM projects`;
     return res.at(0)!.count as number;
   }
@@ -170,7 +157,7 @@ export class ProjectsService {
   async findManyByOrganizationId(organizationId: string): Promise<Project[]> {
     const res = await this.pgService
       .sql`SELECT * FROM projects WHERE organization_id = ${organizationId} ORDER BY id DESC`;
-    return res.map((r) => new Project(r as Project));
+    return res.map((r: any) => new Project(r));
   }
 
   async createOne(
@@ -296,7 +283,7 @@ export class ProjectsService {
   }
 
   async deleteOne(projectId: string): Promise<void> {
-    const sql = this.pgService.sql;
-    await sql`DELETE FROM projects WHERE project_id = ${projectId}`;
+    await this.pgService
+      .sql`DELETE FROM projects WHERE project_id = ${projectId}`;
   }
 }

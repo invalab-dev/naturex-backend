@@ -87,13 +87,16 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
     @Req() req: Request,
   ) {
-    const { access_token, refresh_token } = await this.authService.login(
+    const loginData = await this.authService.login(
       loginDTO.email,
       loginDTO.password,
-      { userAgent: req.get('user-agent'), ip: req.ip },
+      {
+        userAgent: req.get('user-agent'),
+        ip: req.ip,
+      },
     );
 
-    res.cookie('access_token', access_token, {
+    res.cookie('access_token', loginData.access_token, {
       httpOnly: true,
       sameSite: 'lax',
       secure: false,
@@ -101,7 +104,7 @@ export class AuthController {
       maxAge: Number(process.env.JWT_ACCESS_EXPIRATION),
     });
 
-    res.cookie('refresh_token', refresh_token, {
+    res.cookie('refresh_token', loginData.refresh_token, {
       httpOnly: true,
       sameSite: 'lax',
       secure: false,
@@ -109,7 +112,9 @@ export class AuthController {
       maxAge: Number(process.env.JWT_ACCESS_EXPIRATION),
     });
 
-    return null;
+    return {
+      success: loginData.success,
+    };
   }
 
   @Public()
